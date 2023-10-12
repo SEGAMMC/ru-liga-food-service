@@ -1,12 +1,13 @@
 package ru.liga.controllers.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Setter
 @Getter
-@AllArgsConstructor
+@Builder
+@ToString
 public class ResponseItem {
     private double price;
     private int quantity;

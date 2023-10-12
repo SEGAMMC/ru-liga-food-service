@@ -1,13 +1,23 @@
 package ru.liga.controllers.request;
 
+import lombok.*;
+
 import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
+@Builder
+@ToString
 public class RequestOrder {
-    private long restraunt_id;
+    private long restaurant_id;
     private List<RequestItemsList> menu_items;
 
-
-    private class RequestItemsList {
+    @Setter
+    @Getter
+    @ToString
+    public static class RequestItemsList {
         private int quantity;
         private long menu_item_id;
     }

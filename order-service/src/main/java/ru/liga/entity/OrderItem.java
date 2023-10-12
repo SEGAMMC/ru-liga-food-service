@@ -20,12 +20,10 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Column(name = "order_id")
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order orderId;
 
-//    @Column(name = "restaurant_menu_item")
     @OneToOne
     @JoinColumn(name = "restaurant_menu_item")
     private RestaurantMenuItem restaurantMenuItem;

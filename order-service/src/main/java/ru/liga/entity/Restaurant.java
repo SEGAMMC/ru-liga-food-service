@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.liga.entity.enums.RestaurantsStatus;
 
 import javax.persistence.*;
 
@@ -20,9 +21,13 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "address")
     private String address;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private RestaurantsStatus status;
 }

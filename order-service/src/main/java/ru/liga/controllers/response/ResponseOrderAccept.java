@@ -1,19 +1,18 @@
 package ru.liga.controllers.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 @Builder
+@ToString
 public class ResponseOrderAccept {
-    private long ig;
+    private long id;
     private String secret_payment_url;
-    private Date estimated_time_of_arrival;
+    private LocalDateTime estimated_time_of_arrival;
 
 }

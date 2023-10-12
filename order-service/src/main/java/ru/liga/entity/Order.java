@@ -8,6 +8,7 @@ import ru.liga.entity.enums.OrderStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 //Заказы
 @Data
@@ -26,6 +27,10 @@ public class Order {
     @JoinColumn(name = "customer_id")
     private Customer customerId;
 
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurantId;
+
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
@@ -36,4 +41,8 @@ public class Order {
 
     @Column(name = "timestamp")
     private LocalDateTime timeStamp;
+
+    @OneToMany
+    @JoinColumn (name = "id")
+    private List<OrderItem> orderItems;
 }

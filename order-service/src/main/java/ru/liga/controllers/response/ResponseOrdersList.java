@@ -1,20 +1,18 @@
 package ru.liga.controllers.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 @Builder
+@ToString
 public class ResponseOrdersList {
     private List<ResponseOrder> orders;
     private int page_index;
     private int page_count;
-
 
 }

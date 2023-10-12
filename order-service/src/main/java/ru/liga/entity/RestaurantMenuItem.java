@@ -19,7 +19,6 @@ public class RestaurantMenuItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
 
-//    @Column(name = "restaurant_id")
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurantId;
@@ -30,8 +29,8 @@ public class RestaurantMenuItem {
     @Column(name = "price")
     private double price;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Column(name = "image")
+    private String image;
 
     @Column(name = "description")
     private String description;
