@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <!-- локальный ченджлог  -->
+    <changeSet id="create_tables_couriers.v1.0.0" author="Mukhin_Sergey">
+        <!-- relativeToChangelogFile - позволяет указывать путь относительно той папки,
+        где лежит ченджлог  -->
+        <sqlFile path="v1.0.0/create-table-couriers.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sqlFile path="v1.0.0/rollback/init_rollback_couriers.sql" relativeToChangelogFile="true"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="create_tables_customers.v1.0.0" author="Mukhin_Sergey">
+        <sqlFile path="v1.0.0/create-table-customers.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sqlFile path="v1.0.0/rollback/init_rollback_customers.sql" relativeToChangelogFile="true"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="create_tables_restaurants.v1.0.0" author="Mukhin_Sergey">
+        <sqlFile path="v1.0.0/create-table-restaurants.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sqlFile path="v1.0.0/rollback/init_rollback_restaurants.sql" relativeToChangelogFile="true"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="create_tables_orders.v1.0.0" author="Mukhin_Sergey">
+        <sqlFile path="v1.0.0/create-table-orders.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sqlFile path="v1.0.0/rollback/init_rollback_orders.sql" relativeToChangelogFile="true"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="create_tables_restaurant_menu_items.v1.0.0" author="Mukhin_Sergey">
+        <sqlFile path="v1.0.0/create-table-restaurant_menu_items.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sqlFile path="v1.0.0/rollback/init_rollback_restaurant_menu_items.sql" relativeToChangelogFile="true"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="create_tables_order_items.v1.0.0" author="Mukhin_Sergey">
+        <sqlFile path="v1.0.0/create-table-order_items.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sqlFile path="v1.0.0/rollback/init_rollback_order_items.sql" relativeToChangelogFile="true"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
