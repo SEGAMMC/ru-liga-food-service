@@ -1,8 +1,10 @@
-package ru.liga.controllers.request;
+package ru.liga.dto;
+
 
 import lombok.*;
 
 import java.util.List;
+
 
 @NoArgsConstructor
 @AllArgsConstructor

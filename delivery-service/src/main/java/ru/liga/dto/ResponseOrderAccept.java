@@ -1,4 +1,4 @@
-package ru.liga.controllers.response;
+package ru.liga.dto;
 
 import lombok.*;
 

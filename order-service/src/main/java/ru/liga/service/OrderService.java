@@ -1,11 +1,12 @@
 package ru.liga.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.liga.controllers.request.RequestOrder;
-import ru.liga.controllers.response.ResponseItem;
-import ru.liga.controllers.response.ResponseOrder;
-import ru.liga.controllers.response.ResponseOrderAccept;
-import ru.liga.controllers.response.ResponseOrdersList;
+import ru.liga.dto.RequestOrder;
+import ru.liga.dto.ResponseItem;
+import ru.liga.dto.ResponseOrder;
+import ru.liga.dto.ResponseOrderAccept;
+import ru.liga.dto.ResponseOrdersList;
 import ru.liga.entity.Order;
 import ru.liga.entity.OrderItem;
 import ru.liga.entity.Restaurant;
@@ -16,12 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
     private final OrdersRepository ordersRepository;
-
-    public OrderService(OrdersRepository repository) {
-        this.ordersRepository = repository;
-    }
 
     public ResponseOrdersList getOrders() {
         List<Order> ordersInDatabase = ordersRepository.findAll();
@@ -97,3 +95,5 @@ public class OrderService {
         return null;
     }
 }
+
+

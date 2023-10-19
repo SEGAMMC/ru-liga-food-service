@@ -7,9 +7,4 @@ import java.util.List;
 
 public interface OrdersRepository
         extends JpaRepository<Order, Long> {
-//    Subscription findBySubscriptionId(String subscriptionId);
-//
-//    List<Subscription> findSubscriptionByStatus(SubscriptionStatus status);
-//
-//    boolean existsByTransport_endpoint(String endpoint);
 }
