@@ -19,32 +19,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
         </dependency>
     </dependencies>
-
-
-    <profiles>
-        <profile>
-            <id>local</id>
-            <activation>
-                <property>
-                    <name>env</name>
-                    <value>local</value>
-                </property>
-            </activation>
-            <properties>
-                <profile.propertyFile>src/main/resources/database/local/liquibase.properties</profile.propertyFile>
-                <profile.changeLogFile>src/main/resources/database/master.xml</profile.changeLogFile>
-                <profile.dataDir>src/main/resources/database/local/data</profile.dataDir>
-                <profile.verbose>false</profile.verbose>
-                <profile.logging>debug</profile.logging>
-                <profile.changelogSchemaName>public</profile.changelogSchemaName>
-            </properties>
-        </profile>
-    </profiles>
 
     <build>
         <plugins>
@@ -54,20 +34,19 @@
                 <version>4.9.1</version>
                 <configuration>
                     <!-- схема БД   -->
-                    <changelogSchemaName>${profile.changelogSchemaName}</changelogSchemaName>
+                    <changelogSchemaName>public</changelogSchemaName>
                     <!-- файл с кредами для подключения к БД  -->
-                    <propertyFile>${profile.propertyFile}</propertyFile>
-                    <!-- располложение глобального ченджлога  -->
-                    <changeLogFile>${profile.changeLogFile}</changeLogFile>
+                    <propertyFile>src/main/resources/db/local/liquibase.properties</propertyFile>
+                    <!-- расположение глобального ченджлога  -->
+                    <changeLogFile>src/main/resources/db/master.xml</changeLogFile>
                     <!-- Указывает каталог, в котором будут храниться CSV-файлы c данными insert. -->
-                    <dataDir>${profile.dataDir}</dataDir>
+                    <dataDir>src/main/resources/db/local/data</dataDir>
                     <!-- log  -->
-                    <verbose>${profile.verbose}</verbose>
-                    <logging>${profile.logging}</logging>
+                    <verbose>false</verbose>
+                    <logging>debug</logging>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 
 </project>
