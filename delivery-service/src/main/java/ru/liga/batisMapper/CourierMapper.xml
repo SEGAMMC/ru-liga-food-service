@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ru.liga.batisMapper.CourierMapper">
+
+    <select
+            id="getCourierById" parameterType="java.lang.Long"
+            resultMap="courier">
+        <!--выбираем resultMap, чтоб определить как мапить поля результата на сущность MyBatis-->
+        select * from couriers
+        where (1=1)
+        <if test="id != null">
+            and id = #{id}
+        </if>
+    </select>
+
+    <select
+            id="getCourierByStatus" parameterType="ru.liga.entity.enums.CourierStatus"
+            resultMap="courier">
+        <!--выбираем resultMap, чтоб определить как мапить поля результата на сущность MyBatis-->
+        select * from couriers
+        where (1=1)
+        <if test="status != null">
+            and status = #{status}
+        </if>
+    </select>
+
+    <select
+            id="getCourierByPhone" parameterType="java.lang.String"
+            resultMap="courier">
+        <!--выбираем resultMap, чтоб определить как мапить поля результата на сущность MyBatis-->
+        select * from couriers
+        where (1=1)
+        <if test="phone != null">
+            and phone = #{phone}
+        </if>
+    </select>
+
+    <update id="updateCourierStatus" parameterType="ru.liga.entity.Courier">
+        update couriers
+        <set>
+            <if test="status != null">
+                descr = #{status},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <resultMap id="courier" type="ru.liga.entity.Courier">
+        <id property="id" column="id"/>
+        <result property="id" column="id"/>
+    </resultMap>
+
+    <resultMap id="courier" type="ru.liga.entity.Courier">
+        <id property="id" column="id"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <resultMap id="courier" type="ru.liga.entity.Courier">
+        <id property="id" column="id"/>
+        <result property="phone" column="phone"/>
+    </resultMap>
+
+</mapper>

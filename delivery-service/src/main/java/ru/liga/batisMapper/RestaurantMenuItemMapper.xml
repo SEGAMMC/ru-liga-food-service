@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ru.liga.batisMapper.RestaurantMenuItemMapper">
+
+    <select
+            id="getRestaurantMenuItemById" parameterType="java.lang.Long"
+            resultMap="restaurantMenuItem">
+        <!--выбираем resultMap, чтоб определить как мапить поля результата на сущность MyBatis-->
+        select * from restaurantMenuItems
+        where (1=1)
+        <if test="id != null">
+            and id = #{id}
+        </if>
+    </select>
+
+    <select
+            id="getNameRestaurantMenuItemById" parameterType="java.lang.Long"
+            resultMap="java.lang.String">
+        <!--выбираем resultMap, чтоб определить как мапить поля результата на сущность MyBatis-->
+        select * from restaurantMenuItems
+        where (1=1)
+        <if test="name != null">
+            and name = #{name}
+        </if>
+    </select>
+
+    <select
+            id="getDescriptionRestaurantMenuItemById" parameterType="java.lang.Long"
+            resultMap="java.lang.String">
+        <!--выбираем resultMap, чтоб определить как мапить поля результата на сущность MyBatis-->
+        select * from restaurantMenuItems
+        where (1=1)
+        <if test="description != null">
+            and description = #{description}
+        </if>
+    </select>
+
+    <update id="updateRestaurantMenuItem" parameterType="ru.liga.entity.RestaurantMenuItem">
+        update restaurantMenuItems
+        <set>
+            <if test="phone != null">
+                descr = #{phone},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <resultMap id="restaurantMenuItem" type="ru.liga.entity.RestaurantMenuItem">
+        <id property="id" column="id"/>
+        <result property="id" column="id"/>
+    </resultMap>
+
+    <resultMap id="RestaurantMenuItem" type="ru.liga.entity.RestaurantMenuItem">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <resultMap id="RestaurantMenuItem" type="ru.liga.entity.RestaurantMenuItem">
+        <id property="id" column="id"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+</mapper>
