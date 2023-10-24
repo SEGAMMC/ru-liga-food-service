@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Set;
 
 //Заказчики
 @Data
@@ -16,22 +14,19 @@ import java.util.Set;
 @Entity
 @Builder
 @Table(name = "customers")
-public class Customer implements Serializable {
+public class Customer {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "phone")
+    @Column(name = "phone", unique = true)
     private String phone;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "address")
     private String address;
-
-//    @ManyToMany(mappedBy = "customerEntitySet")
-//    private Set<Order> orders;
 
 }

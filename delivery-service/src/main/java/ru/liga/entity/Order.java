@@ -4,10 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.liga.entity.enums.OrderStatus;
+import ru.liga.enums.OrderStatus;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,11 +17,11 @@ import java.util.List;
 @Entity
 @Builder
 @Table(name = "orders")
-public class Order implements Serializable {
+public class Order {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
@@ -46,4 +45,5 @@ public class Order implements Serializable {
     @OneToMany
     @JoinColumn (name = "id")
     private List<OrderItem> orderItems;
+
 }
