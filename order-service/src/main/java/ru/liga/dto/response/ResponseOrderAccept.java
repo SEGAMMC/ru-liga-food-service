@@ -1,4 +1,4 @@
-package ru.liga.dto;
+package ru.liga.dto.response;
 
 import lombok.*;
 
@@ -11,8 +11,11 @@ import java.time.LocalDateTime;
 @Builder
 @ToString
 public class ResponseOrderAccept {
+	
     private long id;
-    private String secret_payment_url;
-    private LocalDateTime estimated_time_of_arrival;
+	
+    private String secretPaymentUrl;
+	
+    private LocalDateTime estimatedTimeOfArrival;
 
 }
