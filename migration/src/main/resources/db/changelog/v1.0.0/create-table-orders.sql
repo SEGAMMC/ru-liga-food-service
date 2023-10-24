@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS orders
 (
     id            BIGSERIAL,
     status        VARCHAR(20),
-    timestamp     TIMESTAMP NOT NULL,
+    timestamp     TIMESTAMPTZ NOT NULL,
     customer_id   BIGINT,
     courier_id    BIGINT,
     restaurant_id BIGINT,

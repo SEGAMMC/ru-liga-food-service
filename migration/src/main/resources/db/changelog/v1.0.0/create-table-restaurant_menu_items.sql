@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS restaurant_menu_items
     name          VARCHAR(100) NOT NULL ,
     price         BIGINT NOT NULL ,
     image         VARCHAR(256),
-    description   VARCHAR(256),
+    description   TEXT,
     restaurant_id BIGINT NOT NULL ,
     CONSTRAINT restaurant_menu_items_pk PRIMARY KEY (id),
     CONSTRAINT restaurant_fk FOREIGN KEY (restaurant_id) references restaurants (id)

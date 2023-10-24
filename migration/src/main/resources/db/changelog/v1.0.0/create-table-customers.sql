@@ -3,8 +3,9 @@ CREATE TABLE IF NOT EXISTS customers
     id      BIGSERIAL,
     phone   VARCHAR(15) NOT NULL,
     email   VARCHAR(80) NOT NULL,
-    address VARCHAR(200),
-    CONSTRAINT customers_pk PRIMARY KEY (id)
+    address TEXT,
+    CONSTRAINT customers_pk PRIMARY KEY (id),
+	UNIQUE(phone, email)
 );
 
 

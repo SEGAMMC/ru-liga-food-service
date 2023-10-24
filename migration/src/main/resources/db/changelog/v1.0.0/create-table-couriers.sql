@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS couriers
     phone       VARCHAR(15) NOT NULL,
     status      VARCHAR(20) NOT NULL,
     coordinates VARCHAR(50),
-    CONSTRAINT couriers_pk PRIMARY KEY (id)
+    CONSTRAINT couriers_pk PRIMARY KEY (id),
+	UNIQUE (phone)
 );
 
 COMMENT ON TABLE couriers IS 'Список курьеров';

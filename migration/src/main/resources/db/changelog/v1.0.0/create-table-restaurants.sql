@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS restaurants
 (
     id      BIGSERIAL,
-    address VARCHAR(200) NOT NULL ,
+    address TEXT NOT NULL ,
     name    VARCHAR(100) NOT NULL ,
-    status  VARCHAR(20),
+    status  VARCHAR(30),
     CONSTRAINT restaurants_pk PRIMARY KEY (id)
 );
 
