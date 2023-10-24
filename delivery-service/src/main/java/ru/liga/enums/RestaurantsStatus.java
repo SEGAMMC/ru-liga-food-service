@@ -1,4 +1,4 @@
-package ru.liga.entity.enums;
+package ru.liga.enums;
 
 public enum RestaurantsStatus {
     ACTIVE, INACTIVE

@@ -1,4 +1,4 @@
-package ru.liga.entity.enums;
+package ru.liga.enums;
 
 public enum OrderStatus {
 	CUSTOMER_CREATED,    //заказ создан
@@ -13,7 +13,7 @@ public enum OrderStatus {
 	DELIVERY_PENDING,    //ожидается доставка
 	DELIVERY_PICKING,    //собирается заказ
 	DELIVERY_DELIVERING, //осуществляется доставка
-	DELIVERY_COMPLETE,   //доставка  выполнена
+	DELIVERY_COMPLETE,    //доставка  выполнена
 	DELIVERY_DENIED,     //в доставке отказано
 	DELIVERY_REFUNDED    //заказ возвращен
 
