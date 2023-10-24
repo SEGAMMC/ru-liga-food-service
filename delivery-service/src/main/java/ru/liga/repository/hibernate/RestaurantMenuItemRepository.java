@@ -1,4 +1,4 @@
-package ru.liga.repository;
+package ru.liga.repository.hibernate;
 
 import org.springframework.data.repository.CrudRepository;
 import ru.liga.entity.Restaurant;
