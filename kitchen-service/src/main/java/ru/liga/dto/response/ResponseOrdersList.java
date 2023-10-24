@@ -1,4 +1,4 @@
-package ru.liga.dto;
+package ru.liga.dto.response;
 
 import lombok.*;
 
@@ -11,8 +11,7 @@ import java.util.List;
 @Builder
 @ToString
 public class ResponseOrdersList {
+	
     private List<ResponseOrder> orders;
-    private int page_index;
-    private int page_count;
-
+    
 }
