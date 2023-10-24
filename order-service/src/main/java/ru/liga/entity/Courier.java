@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.liga.entity.enums.CourierStatus;
+import ru.liga.enums.CourierStatus;
 
 import javax.persistence.*;
 
@@ -21,7 +21,7 @@ public class Courier {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "phone")
+    @Column(name = "phone", unique = true)
     private String phone;
 
     @Column(name = "status")
@@ -30,4 +30,5 @@ public class Courier {
 
     @Column(name = "coordinates")
     private  String coordinates;
+
 }

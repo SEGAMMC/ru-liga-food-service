@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.liga.entity.enums.OrderStatus;
+import ru.liga.enums.OrderStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -45,4 +45,5 @@ public class Order {
     @OneToMany
     @JoinColumn (name = "id")
     private List<OrderItem> orderItems;
+
 }
