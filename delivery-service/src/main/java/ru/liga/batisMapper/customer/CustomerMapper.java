@@ -1,12 +1,10 @@
-package ru.liga.batisMapper;
+package ru.liga.batisMapper.customer;
 
 import ru.liga.entity.Customer;
 
 public interface CustomerMapper {
 
     Customer getCustomerById(Long id);
-
-    Customer getCustomerByPhone(String phone);
 
     Customer getCustomerByEmail(String email);
 

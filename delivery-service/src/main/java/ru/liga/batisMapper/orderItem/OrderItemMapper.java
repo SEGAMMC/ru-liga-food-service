@@ -1,4 +1,4 @@
-package ru.liga.batisMapper;
+package ru.liga.batisMapper.orderItem;
 
 import ru.liga.entity.OrderItem;
 import ru.liga.entity.RestaurantMenuItem;
