@@ -1,6 +1,7 @@
 package ru.liga.dto.request;
 
 import lombok.*;
+import ru.liga.entity.Restaurant;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -10,7 +11,7 @@ import lombok.*;
 @ToString
 public class RequestMenuItem {
 	
-    private Long restaurantId;
+    private Restaurant restaurantId;
 
     private String name;
 
