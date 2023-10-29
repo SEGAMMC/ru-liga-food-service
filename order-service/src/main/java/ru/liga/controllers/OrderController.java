@@ -25,13 +25,13 @@ public class OrderController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-//    @GetMapping("/orders")
-//    public ResponseEntity<?> getOrders() {
-//        ResponseOrdersList ordersList = orderService.getOrders();
-//        return (ordersList != null)
-//                ? new ResponseEntity<>(ordersList, HttpStatus.OK)
-//                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//    }
+    @GetMapping("/orders")
+    public ResponseEntity<?> getOrders() {
+        ResponseOrdersList ordersList = orderService.getOrders();
+        return (ordersList != null)
+                ? new ResponseEntity<>(ordersList, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 //
 //
 //    @GetMapping("/order/{id}")
