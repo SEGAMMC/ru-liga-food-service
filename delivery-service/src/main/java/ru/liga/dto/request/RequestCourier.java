@@ -15,4 +15,5 @@ public class RequestCourier {
 
     private CourierStatus status;
 
+    private String coordinates;
 }
