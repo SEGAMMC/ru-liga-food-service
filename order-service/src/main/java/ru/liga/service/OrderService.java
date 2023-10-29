@@ -2,15 +2,10 @@ package ru.liga.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.liga.dto.RequestOrder;
-import ru.liga.dto.ResponseItem;
-import ru.liga.dto.ResponseOrder;
-import ru.liga.dto.ResponseOrderAccept;
-import ru.liga.dto.ResponseOrdersList;
-import ru.liga.entity.Order;
-import ru.liga.entity.OrderItem;
-import ru.liga.entity.Restaurant;
-import ru.liga.entity.RestaurantMenuItem;
+import ru.liga.dto.response.*;
+import ru.liga.dto.request.*;
+import ru.liga.entity.*;
+import ru.liga.enums.OrderStatus;
 import ru.liga.repository.OrdersRepository;
 
 import java.util.ArrayList;
@@ -27,8 +22,10 @@ public class OrderService {
 
         for (Order orderDB : ordersInDatabase) {
             ResponseOrder respOrder = new ResponseOrder();
+            ResponseRestaurantName respRestaurantName = new ResponseRestaurantName();
+            respRestaurantName.setName(orderDB.getRestaurantId().getName());
             respOrder.setId(orderDB.getId());
-            respOrder.setRestaurantByOrder(orderDB.getRestaurantId());
+            respOrder.setRestaurant(respRestaurantName);
             respOrder.setTimestamp(orderDB.getTimeStamp());
 
             respOrder.setItems(forechItem(orderDB.getOrderItems()));
@@ -39,10 +36,10 @@ public class OrderService {
         return respOrdersList;
     }
 
-    private static List<ResponseItem> forechItem(List<OrderItem> orderItems) {
-        List<ResponseItem> respItems = new ArrayList<>();
+    private static List<ResponseOrderItem> forechItem(List<OrderItem> orderItems) {
+        List<ResponseOrderItem> respItems = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
-            ResponseItem item = new ResponseItem();
+            ResponseOrderItem item = new ResponseOrderItem();
             item.setPrice(orderItem.getPrice());
             item.setQuantity(orderItem.getQuantity());
             item.setDescription(orderItem.getRestaurantMenuItem().getDescription());
@@ -55,8 +52,11 @@ public class OrderService {
     public ResponseOrder getOrderById(long id) {
         Order orderById = ordersRepository.findById(id).orElseThrow();
         ResponseOrder respOrder = new ResponseOrder();
+        ResponseRestaurantName respRestaurantName = new ResponseRestaurantName();
+        respRestaurantName.setName(orderById.getRestaurantId().getName());
+
         respOrder.setId(orderById.getId());
-        respOrder.setRestaurantByOrder(orderById.getRestaurantId());
+        respOrder.setRestaurant(respRestaurantName);
         respOrder.setTimestamp(orderById.getTimeStamp());
 
         respOrder.setItems(forechItem(orderById.getOrderItems()));
@@ -66,15 +66,15 @@ public class OrderService {
     public ResponseOrderAccept createNewOrder(RequestOrder requestOrder) {
         Order order = new Order();
         Restaurant restaurant = new Restaurant();
-        restaurant.setId(requestOrder.getRestaurant_id());
+        restaurant.setId(requestOrder.getRestaurantId());
         order.setRestaurantId(restaurant);
         List<OrderItem> orderItemsList = new ArrayList<>();
         OrderItem orderItem = new OrderItem();
         RestaurantMenuItem rmi = new RestaurantMenuItem();
 
-        for (RequestOrder.RequestItemsList requestItem:requestOrder.getMenu_items()) {
+        for (RequestOrderItems requestItem : requestOrder.getOrderItems()) {
             orderItem.setQuantity(requestItem.getQuantity());
-            rmi.setId(requestItem.getMenu_item_id());
+            rmi.setId(requestItem.getMenuItemId());
             orderItem.setRestaurantMenuItem(rmi);
             orderItemsList.add(orderItem);
         }
@@ -93,6 +93,12 @@ public class OrderService {
 
     public ResponseOrder deleteOrderById(String id) {
         return null;
+    }
+
+    public void updateOrderStatus(RequestOrderStatus requestOrderStatus, Long id) {
+        Order order = ordersRepository.findById(id).get();
+        order.setStatus(requestOrderStatus.getStatus());
+        ordersRepository.save(order);
     }
 }
 

@@ -8,7 +8,7 @@ import lombok.*;
 @Getter
 @Builder
 @ToString
-public class ResponseRestaurant {
+public class ResponseRestaurantName {
  
 	private String name;
 

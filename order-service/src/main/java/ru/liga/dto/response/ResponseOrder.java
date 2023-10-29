@@ -16,7 +16,7 @@ public class ResponseOrder {
 	
     private long id;
 	
-    private ResponseRestaurant restaurant;
+    private ResponseRestaurantName restaurant;
 	
     private LocalDateTime timestamp;
 	
