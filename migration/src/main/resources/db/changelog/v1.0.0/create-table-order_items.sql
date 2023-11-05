@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS order_items
     id                   BIGSERIAL,
     quantity             INT NOT NULL ,
     price                BIGINT NOT NULL ,
-    order_id             BIGINT NOT NULL ,
+    order_id             BIGINT,
     restaurant_menu_item BIGINT NOT NULL ,
     CONSTRAINT order_items_pk PRIMARY KEY (id),
     CONSTRAINT order_id_fk FOREIGN KEY (order_id) references orders (id),
