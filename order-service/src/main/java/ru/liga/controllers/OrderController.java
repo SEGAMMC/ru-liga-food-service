@@ -1,5 +1,7 @@
 package ru.liga.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -9,74 +11,81 @@ import ru.liga.dto.request.*;
 import ru.liga.dto.response.*;
 import ru.liga.service.OrderService;
 
-import java.util.List;
-
 @RestController
+@RequestMapping("/order")
 @RequiredArgsConstructor
-@RequestMapping("")
 @Slf4j
+@Tag(name = "Order-service используется для работы с заказами на доставку")
 public class OrderController {
     private final OrderService orderService;
 
-    @PostMapping("/order/{id}")
-    public ResponseEntity<?> updateOrderStatus(
-            @RequestBody RequestOrderStatus requestOrderStatus, @PathVariable(name = "id") Long id) {
+    @Operation(summary = "Получить список всех заказов")
+    @GetMapping("/all")
+    public ResponseEntity<ResponseOrdersList> getOrders() {
+        ResponseOrdersList responseOrdersList = orderService.getOrders();
+        return new ResponseEntity<>(responseOrdersList, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Получить список заказов конкретного пользователя")
+    @GetMapping
+    public ResponseEntity<ResponseOrdersList> getOrdersByCustomerId(
+            @RequestParam(name = "customer") long id) {
+        ResponseOrdersList responseOrdersList = orderService.getOrdersByCustomerId(id);
+        return new ResponseEntity<>(responseOrdersList, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Обновить статус заказа")
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateOrderStatus(
+            @RequestBody RequestOrderStatus requestOrderStatus
+            , @PathVariable(name = "id") long id) {
         orderService.updateOrderStatus(requestOrderStatus, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/orders")
-    public ResponseEntity<?> getOrders() {
-        ResponseOrdersList ordersList = orderService.getOrders();
-        return (ordersList != null)
-                ? new ResponseEntity<>(ordersList, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @Operation(summary = "Получить заказ по ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseOrder> getOrderById(
+            @PathVariable(name = "id") long id) {
+        ResponseOrder responseOrder = orderService.getOrderById(id);
+        return new ResponseEntity<>(responseOrder, HttpStatus.OK);
     }
-//
-//
-//    @GetMapping("/order/{id}")
-//    public ResponseEntity<?> getOrderById(@PathVariable(name = "id") long id) {
-//        ResponseOrder order = orderService.getOrderById(id);
-//        return (order != null)
-//                ? new ResponseEntity<>(order, HttpStatus.OK)
-//                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//    }
-//
-//    @PostMapping("")
-//    public ResponseEntity<?> createNewOrder(@RequestBody RequestOrder requestOrder) {
-//        ResponseOrderAccept responseOrder = orderService
-//                .createNewOrder(requestOrder);
-//        return (responseOrder != null)
-//                ? new ResponseEntity<>(responseOrder, HttpStatus.CREATED)
-//                : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//    }
-//
-//    @PutMapping("/update")
-//    public ResponseEntity<?> updateOrder(@RequestBody RequestOrder requestOrder) {
-//        ResponseOrder order = orderService.updateOrder(requestOrder);
-//        return (order != null)
-//                ? new ResponseEntity<>(order, HttpStatus.OK)
-//                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//    }
-//
-//    @DeleteMapping("/delete/{id}")
-//    public ResponseEntity<?> deleteOrderById(@PathVariable(name = "id") String id) {
-//        ResponseOrder order = orderService.deleteOrderById(id);
-//        return (order != null)
-//                ? new ResponseEntity<>(order, HttpStatus.OK)
-//                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//    }
 
-//	@GetMapping("/orders")
-//    List<ResponseOrder> getOrdersByStatus(@RequestParam(name = "status") RequestOrderStatus status){
-//		return null;
-//	}
+    @Operation(summary = "Добавить новый заказ")
+    @PostMapping("/{id}")
+    public ResponseEntity<ResponseOrderAccept> createNewOrder(
+            @RequestBody RequestOrder requestOrder,
+            @PathVariable(name = "id") long customerId) {
+        ResponseOrderAccept responseOrder = orderService
+                .createNewOrder(requestOrder, customerId);
+        return new ResponseEntity<>(responseOrder, HttpStatus.CREATED);
+    }
 
-//	@PostMapping("/order/{id}")
-//    void updateOrderStatus(@RequestBody RequestOrderStatus requestOrderStatus
-//            , 	@PathVariable(name = "id") long id){
-//
-//	}
+    @Operation(summary = "Получить список заказов имеющие соответствующий статус для заказчика")
+    @GetMapping("/customers")
+    public ResponseEntity<ResponseOrdersList> getOrdersByStatusCustomer(
+            @RequestParam(name = "status") String status) {
+        ResponseOrdersList responseOrdersList = orderService
+                .getOrdersByStatusCustomer(status);
+        return new ResponseEntity<>(responseOrdersList, HttpStatus.OK);
+    }
 
+    @Operation(summary = "Получить список заказов имеющие соответствующий статус для кухни")
+    @GetMapping("/kitchens")
+    public ResponseEntity<ResponseOrdersList> getOrdersByStatusKitchen(
+            @RequestParam(name = "status") String status) {
+        ResponseOrdersList responseOrdersList = orderService
+                .getOrdersByStatusKitchen(status);
+        return new ResponseEntity<>(responseOrdersList, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Получить список заказов имеющие соответствующий статус для доставки")
+    @GetMapping("/deliveries")
+    public ResponseEntity<ResponseOrdersList> getOrdersByStatusDelivery(
+            @RequestParam(name = "status") String status) {
+        ResponseOrdersList responseOrdersList = orderService
+                .getOrdersByStatusDelivery(status);
+        return new ResponseEntity<>(responseOrdersList, HttpStatus.OK);
+    }
 
 }

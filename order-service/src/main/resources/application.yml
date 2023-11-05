@@ -1,0 +1,76 @@
+server:
+  port: 8081
+  servlet:
+    context-path:
+
+order-service-feign:
+  url: http://localhost:8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  #<2>
+  endpoint:
+    health:
+      show-details: ALWAYS
+  health:
+    rabbit:
+      enabled: 'false'
+      
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database: postgresql
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: 'true'
+      org:
+        hibernate:
+          envers:
+            revision_field_name: rev_id
+            revision_type_field_name: rev_type
+    show-sql: 'true'
+  datasource:
+    username: 'postgres'
+    password: 'root'
+    url: jdbc:postgresql://localhost:5432/food_service
+    driver-class-name: org.postgresql.Driver
+  cloud:
+    compatibility-verifier:
+      enabled: 'false'
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://localhost:9000
+
+#springdoc:
+#  swagger-ui:
+#    path: /bezkoder-documentation
+#    tryItOutEnabled: 'true'
+#    operationsSorter: method
+#    tagsSorter: alpha
+#    filter: 'true'
+#  api-docs:
+#    path: /bezkoder-api-docs
+#  packages-to-scan: ru.liga
+
+#  springdoc:
+#    swagger-ui:
+#      path: /swagger-ui.html
+#
+#    oauth:
+#      client-id: gateway
+#      client-secret: secret
+
+  springdoc:
+    swagger-ui:
+      path: /swagger-ui.html
+      oauth:
+        client-id: gateway
+        client-secret: secret
+
