@@ -3,15 +3,15 @@ package ru.liga.service.interfaces;
 
 import ru.liga.dto.request.RequestRestaurant;
 import ru.liga.dto.request.RequestRestaurantStatus;
-import ru.liga.dto.response.ResponseRestaurant;
+import ru.liga.dto.response.ResponseRestaurantProfile;
 
 public interface RestaurantService {
 	
-	ResponseRestaurant getRestaurantById(Long id);
+	ResponseRestaurantProfile getRestaurantById(long id);
 	
-	ResponseRestaurant createNewRestaurant(RequestRestaurant requestRestaurant);
+	ResponseRestaurantProfile createNewRestaurant(RequestRestaurant requestRestaurant);
 	
-	ResponseRestaurant editRestaurant(RequestRestaurant requestRestaurant, long id);
+	ResponseRestaurantProfile editRestaurant(RequestRestaurant requestRestaurant, long id);
 
 	void updateRestaurantStatus(RequestRestaurantStatus requestRestaurantStatus, long id);
         
