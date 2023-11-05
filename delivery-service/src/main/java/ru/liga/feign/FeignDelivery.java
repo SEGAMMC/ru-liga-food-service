@@ -10,8 +10,8 @@ import ru.liga.dto.request.RequestOrderStatus;
 @FeignClient(name = "order-service", url = "http://localhost:8081")
 public interface FeignDelivery {
 
-    @PostMapping("/order/{id}")
+    @PutMapping("/order/{id}")
     ResponseEntity<?> updateOrderStatus( @RequestBody RequestOrderStatus requestOrderStatus
-            , @PathVariable(name = "id") Long id);
+            , @PathVariable(name = "id") long id);
 }
 

@@ -1,5 +1,7 @@
 package ru.liga.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,39 +17,41 @@ import ru.liga.service.interfaces.CourierService;
 @RequestMapping("/courier")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Courier-service используется для работы с курьерами")
 public class CourierController {
     private final CourierService courierService;
 
-    @PostMapping
-    public ResponseEntity<?> createNewCourier(@RequestBody RequestCourier requestCourier) {
-        ResponseCourier responseCourier = courierService.createNewCourier(requestCourier);
-        return (responseCourier != null)
-                ? new ResponseEntity<>(responseCourier, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @Operation(summary = "Получить информацию о курьере по ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseCourier> getCourierById(
+            @PathVariable(name = "id") long id) {
+        ResponseCourier courier = courierService.getCourierById(id);
+        return new ResponseEntity<>(courier, HttpStatus.OK);
     }
 
-    //TODO вылетает ошибка, разобраться
-//    @GetMapping("/get/${idc}")
-//    public ResponseEntity<?> getCourierById(@PathVariable(name = "idc") Long id) {
-//        ResponseCourier courier = courierService.getCourierById(id);
-//        return (courier != null)
-//                ? new ResponseEntity<>(courier, HttpStatus.OK)
-//                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//    }
+    @Operation(summary = "Добавить нового курьера")
+    @PostMapping
+    public ResponseEntity<ResponseCourier> createNewCourier(
+		@RequestBody RequestCourier requestCourier) {
+        ResponseCourier responseCourier = courierService
+				.createNewCourier(requestCourier);
+        return new ResponseEntity<>(responseCourier, HttpStatus.CREATED);
+    }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<?> updateCourierStatus(@PathVariable long id,
-                                                 @RequestBody RequestCourierStatus requestCourierStatus) {
+    @Operation(summary = "Обновить статус курьера")
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateCourierStatus(
+			@PathVariable long id,
+            @RequestBody RequestCourierStatus requestCourierStatus) {
         courierService.updateCourierStatus(requestCourierStatus, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/phone/{phone}")
-    public ResponseEntity<?> getCourierByPhone(@PathVariable(name = "phone") String phone) {
+    @Operation(summary = "Получить информацию о курьере по номеру телефона")
+    @GetMapping("/findbyphone/{phone}")
+    public ResponseEntity<ResponseCourier> getCourierByPhone(
+			@PathVariable(name = "phone") String phone) {
         ResponseCourier courier = courierService.getCourierByPhone(phone);
-        return (courier != null)
-                ? new ResponseEntity<>(courier, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(courier, HttpStatus.OK);
     }
-
 }

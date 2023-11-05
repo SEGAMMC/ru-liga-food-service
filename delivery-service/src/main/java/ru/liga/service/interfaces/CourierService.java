@@ -6,14 +6,12 @@ import ru.liga.dto.response.ResponseCourier;
 
 public interface CourierService {
 	
-    ResponseCourier getCourierById(Long id);
+    ResponseCourier getCourierById(long id);
 
     ResponseCourier createNewCourier(RequestCourier requestCourier);
 	
-    void updateCourierStatus(RequestCourierStatus requestCourierStatus, Long id);
+    void updateCourierStatus(RequestCourierStatus requestCourierStatus, long id);
 	
     ResponseCourier getCourierByPhone(String phone);
 
 }
-
-

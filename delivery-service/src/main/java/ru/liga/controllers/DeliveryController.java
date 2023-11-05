@@ -1,5 +1,7 @@
 package ru.liga.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,34 +15,37 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping
+@RequestMapping("/delivery")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Delivery-service используется для распределения заказов между курьерами")
 public class DeliveryController {
     private final DeliveryService deliveryService;
 
-    @GetMapping("/deliveries")
-	public ResponseEntity<?> getDeliveryOrdersByStatus(@RequestParam(name = "status") RequestOrderStatus status) {
-		List<ResponseDeliveryOrder> deliveryOrderList= deliveryService.getDeliveryOrdersByStatus(status);
-        return (deliveryOrderList != null)
-                ? new ResponseEntity<>(deliveryOrderList, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @Operation(summary = "Получить список заказов имеющие соответствующий статус")
+    @GetMapping("/orders")
+	public ResponseEntity<List<ResponseDeliveryOrder>> getDeliveryOrdersByStatus(
+			@RequestParam(name = "status") String status) {
+		List<ResponseDeliveryOrder> deliveryOrderList= deliveryService
+				.getOrdersByStatusDelivery(status);
+        return new ResponseEntity<>(deliveryOrderList, HttpStatus.OK);
     }
 
     //TODO
-//    @GetMapping("/delivery/${id}")
-//    public ResponseEntity<?> getDeliveryOrderById(@PathVariable long id) {
-//		ResponseDeliveryOrder deliveryOrder = deliveryService.getDeliveryOrderById(id);
-//        return (deliveryOrder != null)
-//                ? new ResponseEntity<>(deliveryOrder, HttpStatus.OK)
-//                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//    }
-
-    @PostMapping("/delivery/{id}")
-    public ResponseEntity<?> updateDeliveryOrderStatus(@RequestBody RequestOrderStatus requestDeliveryStatus,
-	@PathVariable(name = "id") Long id) {
+    @Operation(summary = "Получить статус заказа по ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseDeliveryOrder> getDeliveryOrderById(
+			@PathVariable long id) {
+		ResponseDeliveryOrder deliveryOrder = deliveryService
+				.getOrderByIdDelivery(id);
+        return new ResponseEntity<>(deliveryOrder, HttpStatus.OK);
+    }
+    @Operation(summary = "Обновить статус заказа доставки")
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateDeliveryOrderStatus(
+			@RequestBody RequestOrderStatus requestDeliveryStatus,
+			@PathVariable(name = "id") Long id) {
         deliveryService.updateDeliveryOrderStatus(requestDeliveryStatus, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }

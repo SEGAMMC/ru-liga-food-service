@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface DeliveryService {
 
-    List<ResponseDeliveryOrder> getDeliveryOrdersByStatus(RequestOrderStatus status);
+    List<ResponseDeliveryOrder> getOrdersByStatusDelivery(String status);
 	
-	ResponseDeliveryOrder getDeliveryOrderById (long id);
+	ResponseDeliveryOrder getOrderByIdDelivery(long id);
 	
     void updateDeliveryOrderStatus(RequestOrderStatus status, long id);
 
