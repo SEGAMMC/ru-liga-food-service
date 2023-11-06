@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/authorization_server?currentSchema=auth
+    url: jdbc:postgresql://localhost:5432/food_service?currentSchema=auth
     username: postgres
     password: root
     jpa:

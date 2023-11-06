@@ -12,15 +12,26 @@ import ru.liga.entity.OrderModel;
 @Slf4j
 @RequiredArgsConstructor
 public class QueueListener {
+    private final NotificationService notificationService;
 
     @SneakyThrows
-    @RabbitListener(queues = "OrdersQueue")
+    @RabbitListener(queues = "queueOrdersToKitchen")
     public void processMyQueue(String message) {
         ObjectMapper objectMapper = new ObjectMapper();
         OrderModel messageModel = objectMapper.readValue(message, OrderModel.class);
         log.info("Order with id: " +  messageModel.getId()
                 + " add in queue restaurantId: "+ messageModel.getId());
-        System.out.println("Message get");
+        notificationService.getOrders(messageModel);
+    }
+
+    @SneakyThrows
+    @RabbitListener(queues = "queueOrdersToDelivery")
+    public void processMyQueue2(String message) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        OrderModel messageModel = objectMapper.readValue(message, OrderModel.class);
+        log.info("Order with id: " +  messageModel.getId()
+                + " add in queue delivery: "+ messageModel.getId());
+        notificationService.getOrders(messageModel);
     }
 
 }

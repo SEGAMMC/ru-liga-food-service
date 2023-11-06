@@ -1,6 +1,7 @@
 package ru.liga.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.liga.dto.request.RequestCustomer;
 
@@ -12,7 +13,7 @@ import ru.liga.service.interfaces.CustomerService;
 import ru.liga.util.Validator;
 
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
@@ -23,11 +24,13 @@ public class CustomerServiceImpl implements CustomerService {
     public ResponseCustomerProfile getCustomerById(long id) {
         validator.isPositive(id);
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(id));
+                .orElseThrow(() -> (new CustomerNotFoundException(id)));
         ResponseCustomerProfile responseCustomer = new ResponseCustomerProfile();
         responseCustomer.setEmail(customer.getEmail());
         responseCustomer.setPhone(customer.getPhone());
         responseCustomer.setAddress(customer.getAddress());
+        log.info("[CustomerServiceImpl:getCustomerById]:" +
+                " Получили информацию о клиенте с id {}", id);
         return responseCustomer;
     }
 
@@ -37,7 +40,9 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setPhone(requestCustomer.getPhone());
         customer.setEmail(requestCustomer.getEmail());
         customer.setAddress(requestCustomer.getAddress());
-        customerRepository.save(customer);
+        customer = customerRepository.save(customer);
+        log.info("[CustomerServiceImpl:createNewCustomer]:" +
+                " Зарегистрировали нового клиента с id {}", customer.getId());
     }
 
     @Override
@@ -48,7 +53,9 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setPhone(requestCustomer.getPhone());
         customer.setEmail(requestCustomer.getEmail());
         customer.setAddress(requestCustomer.getAddress());
-        customerRepository.save(customer);
+        customer = customerRepository.save(customer);
+        log.info("[CustomerServiceImpl:editCustomerById]:" +
+                " Изменили информацию о клиенте с id {}", customer.getId());
     }
 }
 

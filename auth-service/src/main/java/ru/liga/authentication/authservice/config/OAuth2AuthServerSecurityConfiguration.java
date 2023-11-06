@@ -37,10 +37,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import ru.liga.authentication.authservice.model.CustomUserDetails;
 
-/**
- * OAuth Конфигурация Сервера Авторизации.
- *
- */
 @Configuration
 @EnableWebSecurity
 public class OAuth2AuthServerSecurityConfiguration {
@@ -49,12 +45,10 @@ public class OAuth2AuthServerSecurityConfiguration {
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        http
-                .exceptionHandling(exceptions -> exceptions
+        http.exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(
                                 new LoginUrlAuthenticationEntryPoint("/login"))
                 );
-
         return http.build();
     }
 
@@ -88,7 +82,6 @@ public class OAuth2AuthServerSecurityConfiguration {
                 new JdbcRegisteredClientRepository(jdbcTemplate);
         registeredClientRepository.save(registeredClient);
 
-
         return registeredClientRepository;
     }
 
@@ -111,12 +104,12 @@ public class OAuth2AuthServerSecurityConfiguration {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
             keyPairGenerator.initialize(2048);
             keyPair = keyPairGenerator.generateKeyPair();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
         return keyPair;
     }
+
 
     @Bean
     public ProviderSettings providerSettings() {

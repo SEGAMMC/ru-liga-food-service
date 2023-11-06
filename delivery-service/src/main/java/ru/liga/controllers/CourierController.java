@@ -25,6 +25,8 @@ public class CourierController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseCourier> getCourierById(
             @PathVariable(name = "id") long id) {
+        log.info("[CourierController:getCourierById]: " +
+                "Попытка получить инфортмацию о курьере с id {}", id);
         ResponseCourier courier = courierService.getCourierById(id);
         return new ResponseEntity<>(courier, HttpStatus.OK);
     }
@@ -33,6 +35,9 @@ public class CourierController {
     @PostMapping
     public ResponseEntity<ResponseCourier> createNewCourier(
 		@RequestBody RequestCourier requestCourier) {
+        log.info("[CourierController:createNewCourier]: " +
+                "Попытка зарегистрировать нового курьера с информацией - {}"
+                , requestCourier.toString());
         ResponseCourier responseCourier = courierService
 				.createNewCourier(requestCourier);
         return new ResponseEntity<>(responseCourier, HttpStatus.CREATED);
@@ -43,6 +48,9 @@ public class CourierController {
     public ResponseEntity<Void> updateCourierStatus(
 			@PathVariable long id,
             @RequestBody RequestCourierStatus requestCourierStatus) {
+        log.info("[CourierController:updateCourierStatus]: " +
+                "Попытка изменить статус курьера с id {} на {}"
+                , id, requestCourierStatus.getStatus().toString());
         courierService.updateCourierStatus(requestCourierStatus, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -51,6 +59,8 @@ public class CourierController {
     @GetMapping("/findbyphone/{phone}")
     public ResponseEntity<ResponseCourier> getCourierByPhone(
 			@PathVariable(name = "phone") String phone) {
+        log.info("[CourierController:getCourierByPhone]: " +
+                "Попытка получить информацию о курьере но номеру телефона {}", phone);
         ResponseCourier courier = courierService.getCourierByPhone(phone);
         return new ResponseEntity<>(courier, HttpStatus.OK);
     }

@@ -1,6 +1,7 @@
 package ru.liga.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.liga.dto.request.RequestOrderStatus;
 import ru.liga.dto.response.ResponseCustomerDelivery;
@@ -21,6 +22,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeliveryServiceImpl implements DeliveryService {
@@ -43,24 +45,34 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<Order> orders = ordersRepository.getOrdersByStatus(status);
         List<ResponseDeliveryOrder> responseDeliveryOrderList = new ArrayList<>();
         for (Order order : orders) {
-            ResponseDeliveryOrder respDeliveryOrder = convertOrderToResponseOrder(order);
+            ResponseDeliveryOrder respDeliveryOrder =
+                    convertOrderToResponseOrder(order);
             responseDeliveryOrderList.add(respDeliveryOrder);
         }
+        log.info("[DeliveryServiceImpl:getOrdersByStatus]: " +
+                "Получили список заказов с соответствующим статусом {}"
+                , status.toString());
         return responseDeliveryOrderList;
     }
 
     @Override
     public ResponseDeliveryOrder getOrderByIdDelivery(long id) {
         validator.isPositive(id);
-        Order order = ordersRepository.findById(id).orElseThrow(()->new OrderNotFoundException(id));
+        Order order = ordersRepository.findById(id)
+                .orElseThrow(()->new OrderNotFoundException(id));
+        log.info("[DeliveryServiceImpl:getOrdersByStatus]: " +
+                "Получили заказ на доставку с id {}", id);
         return convertOrderToResponseOrder(order);
     }
 
     @Override
-    public void updateDeliveryOrderStatus(RequestOrderStatus requestDeliveryStatus, long id) {
+    public void updateDeliveryOrderStatus(RequestOrderStatus requestDeliveryStatus
+            , long id) {
         validator.isPositive(id);
-
         feignDelivery.updateOrderStatus(requestDeliveryStatus, id);
+        log.info("[DeliveryServiceImpl:getOrdersByStatus]: " +
+                "Обновили статус заказа на доставку, новый статус {}"
+                , requestDeliveryStatus.getStatus().toString());
     }
 
     private ResponseDeliveryOrder convertOrderToResponseOrder(Order order) {
@@ -80,20 +92,26 @@ public class DeliveryServiceImpl implements DeliveryService {
         String customerAddress =custAddress[0];
         respCustomer.setAddress(customerAddress);
 
-        double distanceCourierByRestaurant = geoService.determineDistance(courierOrder, restaurantOrder);
-        respRestaurant.setDistance(new DecimalFormat("#0").format(distanceCourierByRestaurant));
+        double distanceCourierByRestaurant = geoService
+                .determineDistance(courierOrder, restaurantOrder);
+        respRestaurant.setDistance(new DecimalFormat("#0")
+                .format(distanceCourierByRestaurant));
 
-        double distanceRestaurantByCustomer = geoService.determineDistance(restaurantOrder, customerOrder);
-        respCustomer.setDistance(new DecimalFormat("#0").format(distanceRestaurantByCustomer));
+        double distanceRestaurantByCustomer = geoService
+                .determineDistance(restaurantOrder, customerOrder);
+        respCustomer.setDistance(new DecimalFormat("#0")
+                .format(distanceRestaurantByCustomer));
 
-        double paymentByDelivery = (distanceCourierByRestaurant + distanceRestaurantByCustomer) * CASH_BY_METTERS;
+        double paymentByDelivery =
+                (distanceCourierByRestaurant + distanceRestaurantByCustomer)
+                        * CASH_BY_METTERS;
 
         respDeliveryOrder.setOrderId(order.getId());
         respDeliveryOrder.setRestaurant(respRestaurant);
         respDeliveryOrder.setCustomer(respCustomer);
-        respDeliveryOrder.setPayment(new DecimalFormat("#0").format(paymentByDelivery));
+        respDeliveryOrder.setPayment(new DecimalFormat("#0")
+                .format(paymentByDelivery));
 
         return respDeliveryOrder;
     }
-
 }

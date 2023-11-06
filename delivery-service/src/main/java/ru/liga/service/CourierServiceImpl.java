@@ -1,6 +1,7 @@
 package ru.liga.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.liga.dto.request.RequestCourier;
 import ru.liga.dto.request.RequestCourierStatus;
@@ -12,6 +13,7 @@ import ru.liga.repository.mybatis.CourierRepositoryBatis;
 import ru.liga.service.interfaces.CourierService;
 import ru.liga.util.Validator;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CourierServiceImpl implements CourierService {
@@ -24,6 +26,8 @@ public class CourierServiceImpl implements CourierService {
         validator.isPositive(courierId);
         Courier courier = courierRepositoryBatis.getCourierById(courierId);
         if (courier == null) throw new CourierNotFoundException(courierId);
+        log.info("[CourierServiceImpl:getCourierById]: " +
+                        "Получили информацию о курьере с id {} ", courierId);
         return mapCourierToResponseCourier(courier);
     }
 
@@ -33,7 +37,9 @@ public class CourierServiceImpl implements CourierService {
         courier.setPhone(requestCourier.getPhone());
         courier.setStatus(requestCourier.getStatus());
         courier.setCoordinates(requestCourier.getCoordinates());
-        courierRepository.save(courier);
+        courier = courierRepository.save(courier);
+        log.info("[CourierServiceImpl:createNewCourier]: " +
+                        "Создали нового курьера с id {}", courier.getId());
         return mapCourierToResponseCourier(courier);
     }
 
@@ -44,13 +50,19 @@ public class CourierServiceImpl implements CourierService {
         Courier courier = courierRepository.findById(id)
                 .orElseThrow(() -> new CourierNotFoundException(id));
         courier.setStatus(requestCourierStatus.getStatus());
-        courierRepository.save(courier);
+        courier = courierRepository.save(courier);
+        log.info("[CourierServiceImpl:updateCourierStatus]: " +
+                        "Изменили статус курьера с id {} на статус {}"
+                , id, courier.getStatus());
     }
 
     @Override
     public ResponseCourier getCourierByPhone(String phone) {
         Courier courier = courierRepositoryBatis.getCourierByPhone(phone);
         if (courier == null) throw new CourierNotFoundException(phone);
+        log.info("[CourierServiceImpl:getCourierByPhone]: " +
+                        "Получили информацию о курьере по номеру телефона {}"
+                , courier.getPhone());
         return mapCourierToResponseCourier(courier);
     }
 

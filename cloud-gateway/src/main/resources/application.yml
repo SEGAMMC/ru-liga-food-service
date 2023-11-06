@@ -7,35 +7,60 @@ spring:
       enabled: false
     gateway:
       routes:
-        - id: order-services
-          uri: http://127.0.0.1:9000/register
-          predicates:
-            - Path=/register/**
-          filters:
-            - TokenRelay=
-            - RemoveRequestHeader=Cookie
         - id: order-service
-          uri: http://127.0.0.1:8081/order
+          uri: http://127.0.0.1:8081/
           predicates:
             - Path=/order/**
           filters:
             - TokenRelay=
             - RemoveRequestHeader=Cookie
+            - RewritePath=/order/(?<path>.*),/$\{path}
+
+        - id: customer-service
+          uri: http://127.0.0.1:8081/
+          predicates:
+            - Path=/customer/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/customer/(?<path>.*),/$\{path}
+
         - id: kitchen-service
-          uri: http://127.0.0.1:8082/kitchen
+          uri: http://127.0.0.1:8082/
           predicates:
             - Path=/kitchen/**
           filters:
             - TokenRelay=
             - RemoveRequestHeader=Cookie
+            - RewritePath=/kitchen/(?<path>.*),/$\{path}
+
+        - id: restaurant-service
+          uri: http://127.0.0.1:8082/
+          predicates:
+            - Path=/restaurant/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/restaurant/(?<path>.*),/$\{path}
+
+        - id: courier-service
+          uri: http://127.0.0.1:8083/
+          predicates:
+            - Path=/courier/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/courier/(?<path>.*),/$\{path}
 
         - id: delivery-service
-          uri: http://127.0.0.1:8083/delivery
+          uri: http://127.0.0.1:8083/
           predicates:
             - Path=/delivery/**
           filters:
             - TokenRelay=
             - RemoveRequestHeader=Cookie
+            - RewritePath=/delivery/(?<path>.*),/$\{path}
+
   security:
     oauth2:
       client:

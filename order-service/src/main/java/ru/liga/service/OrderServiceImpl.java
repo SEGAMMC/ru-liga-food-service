@@ -3,6 +3,7 @@ package ru.liga.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.liga.dto.request.RequestOrder;
 import ru.liga.dto.request.RequestOrderItem;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -54,8 +55,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseOrdersList getOrdersByCustomerId(long customerId) {
         validator.isPositive(customerId);
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
-
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
         var orders = ordersRepository.findByCustomerId(customer);
         List<ResponseOrder> responseOrders = new ArrayList<>();
         for (Order order : orders) {
@@ -63,6 +64,8 @@ public class OrderServiceImpl implements OrderService {
         }
         ResponseOrdersList respOrdersList = new ResponseOrdersList();
         respOrdersList.setOrders(responseOrders);
+        log.info("[OrderServiceImpl:getOrdersByCustomerId]:" +
+                " Получили заказы клиента с id {}", customer.getId());
         return respOrdersList;
     }
 
@@ -71,15 +74,19 @@ public class OrderServiceImpl implements OrderService {
         validator.isPositive(orderId);
         validator.isValidRequestStatus(requestOrderStatus);
 
-        Order orderById = ordersRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+        Order orderById = ordersRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
         orderById.setStatus(requestOrderStatus.getStatus());
-        ordersRepository.save(orderById);
+        orderById = ordersRepository.save(orderById);
+        log.info("[OrderServiceImpl:updateOrderStatus]:" +
+                " Изменили статус заказа с id {}, новый статус {}", orderById.getId(),orderById.getStatus());
     }
 
     @Override
     public ResponseOrder getOrderById(long orderId) {
         validator.isPositive(orderId);
-        Order orderById = ordersRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+        Order orderById = ordersRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
         ResponseRestaurantName respRestaurantName = new ResponseRestaurantName();
         respRestaurantName.setName(orderById.getRestaurantId().getName());
 
@@ -88,8 +95,12 @@ public class OrderServiceImpl implements OrderService {
         respOrder.setRestaurant(respRestaurantName);
         respOrder.setTimestamp(orderById.getTimeStamp());
 
-        respOrder.setItems(mapOrderItemToResponseOrderItem(orderById.getItems()));
+        //TODO убрать
+        sendOrderToQueue(orderById); //отправка заказа в очередь OrdersQueue
 
+        respOrder.setItems(mapOrderItemToResponseOrderItem(orderById.getItems()));
+        log.info("[OrderServiceImpl:getOrderById]:" +
+                " Получили информацию о заказе с id {}", orderById.getId());
         return respOrder;
     }
 
@@ -125,16 +136,18 @@ public class OrderServiceImpl implements OrderService {
             orderItemsList.add(orderItem);
         }
         order.setItems(orderItemsList);
-        ordersRepository.save(order);
+        order = ordersRepository.save(order);
 
         sendOrderToQueue(order); //отправка заказа в очередь OrdersQueue
 
-        LocalDateTime  timeCreate = order.getTimeStamp();
-        LocalDateTime  timeDelivery = timeCreate.plusMinutes(DEFAUL_TIME_DELIVERY);
+        LocalDateTime timeCreate = order.getTimeStamp();
+        LocalDateTime timeDelivery = timeCreate.plusMinutes(DEFAUL_TIME_DELIVERY);
         ResponseOrderAccept responseOrderAccept = new ResponseOrderAccept();
         responseOrderAccept.setSecretPaymentUrl(URL_PREFIX + UUID.randomUUID());
         responseOrderAccept.setEstimatedTimeOfArrival(timeDelivery);
         responseOrderAccept.setId(order.getId());
+        log.info("[OrderServiceImpl:createNewOrder]:" +
+                " Создали новый заказ с id {}", order.getId());
         return responseOrderAccept;
     }
 
@@ -201,7 +214,7 @@ public class OrderServiceImpl implements OrderService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        rabbitMQProducerService.sendOrderToQueue(newOrderToQueue, "restaurant");
+        rabbitMQProducerService.sendOrderToQueue(newOrderToQueue, "order.new");
     }
 
 }

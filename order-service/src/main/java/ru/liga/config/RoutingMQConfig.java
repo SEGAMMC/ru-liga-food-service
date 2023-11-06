@@ -15,11 +15,11 @@ public class RoutingMQConfig {
 
     @Bean
     public Declarables myQueue() {
-        Queue queueDirectCouriers = new Queue("courierSearchQueueToNotification", false);
-        DirectExchange directExchange = new DirectExchange("directExchange");
+        Queue queueDirectCouriers = new Queue("queueOrdersToKitchen", false);
+        DirectExchange directExchange = new DirectExchange("pushOrdersDirectExchange");
 
         return new Declarables(queueDirectCouriers, directExchange,
-            BindingBuilder.bind(queueDirectCouriers).to(directExchange).with("courier_search_to_notification")
+            BindingBuilder.bind(queueDirectCouriers).to(directExchange).with("order.new")
         );
     }
 

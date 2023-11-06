@@ -36,6 +36,8 @@
         <maven.compiler.target>11</maven.compiler.target>
         <maven.complier.plugin>3.11.0</maven.complier.plugin>
         <spring-cloud.version>2021.0.8</spring-cloud.version>
+
+        <spring-boot-starter-security.version>2.7.15</spring-boot-starter-security.version>
         <spring-security-oauth2-authorization-server.version>0.3.0</spring-security-oauth2-authorization-server.version>
         <spring-session-core.version>2.7.4</spring-session-core.version>
     </properties>
@@ -115,9 +117,16 @@
             </dependency>
 
             <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-authorization-server</artifactId>
+                <version>${spring-security-oauth2-authorization-server.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-security</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring-boot-starter-security.version}</version>
+                <scope>compile</scope>
             </dependency>
 
             <dependency>
@@ -160,6 +169,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>2.1.1</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
                 <version>${liquibase.version}</version>
@@ -184,18 +199,6 @@
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring.version}</version>
                 <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mapstruct</groupId>
-                <artifactId>mapstruct</artifactId>
-                <version>${mapstruct.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mapstruct</groupId>
-                <artifactId>mapstruct-processor</artifactId>
-                <version>${mapstruct.version}</version>
             </dependency>
 
             <dependency>

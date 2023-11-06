@@ -1,6 +1,7 @@
 package ru.liga.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.liga.dto.request.RequestMenuItem;
 import ru.liga.dto.request.RequestOrderStatus;
@@ -23,7 +24,7 @@ import ru.liga.util.Validator;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KitchenServiceImpl implements KitchenService {
@@ -39,17 +40,23 @@ public class KitchenServiceImpl implements KitchenService {
         validator.isPositive(id);
         RestaurantMenuItem restaurantMenuItem = menuItemRepository.findById(id)
                 .orElseThrow(() -> new MenuItemNotFoundException(id));
+        log.info("[KitchenServiceImpl:getMenuItemById]: " +
+                "Получили информацию о блюде с id {} из ресторана {}"
+                , id, restaurantMenuItem.getRestaurantId());
         return mapMenuItemToResponseMenuItem(restaurantMenuItem);
     }
 
     @Override
-    public void updatePriceByMenuItem(RequestUpdatePriceMenuItem requestUpdatePriceMenuItem, long id) {
+    public void updatePriceByMenuItem(RequestUpdatePriceMenuItem
+                                                  requestUpdatePriceMenuItem, long id) {
         validator.isPositive(id);
         validator.isPositive(requestUpdatePriceMenuItem.getPrice());
         RestaurantMenuItem restaurantMenuItem = menuItemRepository.findById(id)
                 .orElseThrow(() -> new MenuItemNotFoundException(id));
         restaurantMenuItem.setPrice(requestUpdatePriceMenuItem.getPrice());
-        menuItemRepository.save(restaurantMenuItem);
+        restaurantMenuItem = menuItemRepository.save(restaurantMenuItem);
+        log.info("[KitchenServiceImpl:updatePriceByMenuItem]: " +
+                "Изменили цену блюда id {}  на {}", id, restaurantMenuItem.getPrice());
     }
 
 
@@ -60,6 +67,8 @@ public class KitchenServiceImpl implements KitchenService {
         restaurantMenuItem = mapRequestMenuItemToMenuItem(requestMenuItem
                 , restaurantMenuItem);
         restaurantMenuItem = menuItemRepository.save(restaurantMenuItem);
+        log.info("[KitchenServiceImpl:createNewMenuItem]: " +
+                "Зарегистрировали новое блюдо с id {}", restaurantMenuItem.getId());
         return mapMenuItemToResponseMenuItem(restaurantMenuItem);
     }
 
@@ -72,6 +81,8 @@ public class KitchenServiceImpl implements KitchenService {
         restaurantMenuItem = mapRequestMenuItemToMenuItem(requestMenuItem
                 , restaurantMenuItem);
         restaurantMenuItem = menuItemRepository.save(restaurantMenuItem);
+        log.info("[KitchenServiceImpl:editMenuItem]: " +
+                "Изменили информацию о блюде с id {}", restaurantMenuItem.getId());
         return mapMenuItemToResponseMenuItem(restaurantMenuItem);
     }
 
@@ -92,6 +103,8 @@ public class KitchenServiceImpl implements KitchenService {
 //            rabbitMQProducerService.sendOrderToDelivery(String
 //                    .valueOf(order.getId()));
         }
+        log.info("[KitchenServiceImpl:updateOrderStatusByKitchen]: " +
+                "Изменили информацию о ресторане с id {}", id);
     }
 
 

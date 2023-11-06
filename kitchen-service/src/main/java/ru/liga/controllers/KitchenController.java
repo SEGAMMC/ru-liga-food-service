@@ -28,6 +28,8 @@ public class KitchenController {
     @GetMapping("/item/{id}")
     public ResponseEntity<ResponseMenuItem> getMenuItemById(
             @PathVariable(name = "id") long id) {
+        log.info("[KitchenController:getMenuItemById]:" +
+                "Попытка получить информацию о блюде с id {}", id);
         ResponseMenuItem respMenuItem = kitchenService.getMenuItemById(id);
         return new ResponseEntity<>(respMenuItem, HttpStatus.OK);
     }
@@ -36,6 +38,9 @@ public class KitchenController {
     @PostMapping("/item")
     public ResponseEntity<ResponseMenuItem> createNewMenuItem(
             @RequestBody RequestMenuItem requestMenuItem) {
+        log.info("[KitchenController:createNewMenuItem]:" +
+                "Попытка регистрации нового блюда с информацией {}"
+                , requestMenuItem.toString());
         ResponseMenuItem respMenuItem = kitchenService
                 .createNewMenuItem(requestMenuItem);
         return new ResponseEntity<>(respMenuItem, HttpStatus.CREATED);
@@ -46,6 +51,9 @@ public class KitchenController {
     public ResponseEntity<ResponseMenuItem> editMenuItem(
             @RequestBody RequestMenuItem requestMenuItem,
             @RequestParam("id") long id) {
+        log.info("[KitchenController:editMenuItem]: " +
+                "Попытка изменить информацию о блюде с id {}, на информацию - "
+                , requestMenuItem.toString());
         ResponseMenuItem respMenuItem = kitchenService
                 .editMenuItem(requestMenuItem, id);
         return new ResponseEntity<>(respMenuItem, HttpStatus.OK);
@@ -57,6 +65,9 @@ public class KitchenController {
     public ResponseEntity<Void> updateOrderStatusByKitchen(
             @RequestBody RequestOrderStatus requestOrderStatus,
             @PathVariable(name = "id") long id) {
+        log.info("[KitchenController:updateOrderStatusByKitchen]: " +
+                "Попытка обновить статус заказа id {} на новый  статус {}"
+                , id, requestOrderStatus.getStatus().toString());
         kitchenService.updateOrderStatusByKitchen(requestOrderStatus, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -65,6 +76,8 @@ public class KitchenController {
     @GetMapping("/orders")
     public ResponseEntity<ResponseOrdersList> getKitchenOrdersByStatus(
             @RequestParam(name = "status") String status) {
+        log.info("[KitchenController:getKitchenOrdersByStatus]: " +
+                "Попытка получить список заказов имеющие статус {}", status);
         ResponseOrdersList kitchenOrderList = kitchenService
                 .getOrdersByStatusKitchen(status);
         return new ResponseEntity<>(kitchenOrderList, HttpStatus.OK);
@@ -75,8 +88,10 @@ public class KitchenController {
     public ResponseEntity<Void> updatePriceByMenuItem(
             @RequestBody RequestUpdatePriceMenuItem requestUpdatePriceMenuItem,
             @PathVariable(name = "id") long id) {
+        log.info("[KitchenController:updatePriceByMenuItem]:" +
+                "Попытка изменить цену блюда с id {} на новую цену {}"
+                , id, requestUpdatePriceMenuItem.getPrice());
         kitchenService.updatePriceByMenuItem(requestUpdatePriceMenuItem, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }

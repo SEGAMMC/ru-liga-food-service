@@ -1,10 +1,11 @@
-package ru.liga.service;
+package ru.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
-import ru.liga.service.interfaces.RabbitMQProducerService;
+import ru.service.interfaces.RabbitMQProducerService;
+
 
 @Service
 @RequiredArgsConstructor
@@ -13,8 +14,9 @@ public class RabbitMQProducerServiceImpl implements RabbitMQProducerService {
     private final RabbitTemplate rabbitTemplate;
 
     @Override
-    public void sendOrderToQueue(String message, String routingKey) {
+    public void resendOrderToKitchen(String message, String routingKey) {
         rabbitTemplate.convertAndSend("pushOrdersDirectExchange", routingKey,message);
         log.info("You has new order, this id" + message);
+        System.out.printf("You has new order, this id" + message);
     }
 }
