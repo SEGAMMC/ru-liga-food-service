@@ -48,29 +48,8 @@ spring:
 #        jwt:
 #          issuer-uri: http://localhost:9000
 
-#springdoc:
-#  swagger-ui:
-#    path: /bezkoder-documentation
-#    tryItOutEnabled: 'true'
-#    operationsSorter: method
-#    tagsSorter: alpha
-#    filter: 'true'
-#  api-docs:
-#    path: /bezkoder-api-docs
-#  packages-to-scan: ru.liga
 
-#  springdoc:
-#    swagger-ui:
-#      path: /swagger-ui.html
-#
-#    oauth:
-#      client-id: gateway
-#      client-secret: secret
-
-  springdoc:
-    swagger-ui:
-      path: /swagger-ui.html
-      oauth:
-        client-id: gateway
-        client-secret: secret
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
 

@@ -6,10 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.liga.dto.request.*;
 import ru.liga.entity.Restaurant;
 import ru.liga.enums.OrderStatus;
-import ru.liga.exception.RequestCustomerInvalidException;
-import ru.liga.exception.RequestMenuItemInvalidException;
-import ru.liga.exception.RequestOrderInvalidException;
-import ru.liga.exception.RequestOrderStatusInvalidException;
+import ru.liga.exception.*;
 import ru.liga.repository.hibernate.CustomerRepository;
 import ru.liga.repository.hibernate.OrdersRepository;
 import ru.liga.repository.hibernate.RestaurantMenuItemRepository;
@@ -114,6 +111,13 @@ public class Validator {
 
     }
 
+    public boolean isPositive(double id) {
+        if (id <= 0) {
+            throw new RequestPriceInvalidException(id);
+        }
+        return true;
+
+    }
     public void checkRequestMenuItem(RequestMenuItem requestMenuItem) {
         List<String> errorList = new ArrayList<>();
         boolean isValid = true;

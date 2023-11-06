@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.liga.dto.request.RequestMenuItem;
 import ru.liga.dto.request.RequestOrderStatus;
+import ru.liga.dto.request.RequestUpdatePriceMenuItem;
 import ru.liga.dto.response.*;
 import ru.liga.entity.Order;
 import ru.liga.entity.OrderItem;
@@ -42,9 +43,19 @@ public class KitchenServiceImpl implements KitchenService {
     }
 
     @Override
+    public void updatePriceByMenuItem(RequestUpdatePriceMenuItem requestUpdatePriceMenuItem, long id) {
+        validator.isPositive(id);
+        validator.isPositive(requestUpdatePriceMenuItem.getPrice());
+        RestaurantMenuItem restaurantMenuItem = menuItemRepository.findById(id)
+                .orElseThrow(() -> new MenuItemNotFoundException(id));
+        restaurantMenuItem.setPrice(requestUpdatePriceMenuItem.getPrice());
+        menuItemRepository.save(restaurantMenuItem);
+    }
+
+
+    @Override
     public ResponseMenuItem createNewMenuItem(RequestMenuItem requestMenuItem) {
         validator.checkRequestMenuItem(requestMenuItem);
-
         RestaurantMenuItem restaurantMenuItem = new RestaurantMenuItem();
         restaurantMenuItem = mapRequestMenuItemToMenuItem(requestMenuItem
                 , restaurantMenuItem);
@@ -57,7 +68,7 @@ public class KitchenServiceImpl implements KitchenService {
         validator.isPositive(id);
         validator.checkRequestMenuItem(requestMenuItem);
         RestaurantMenuItem restaurantMenuItem = menuItemRepository.findById(id)
-                .orElseThrow(()-> new MenuItemNotFoundException(id));
+                .orElseThrow(() -> new MenuItemNotFoundException(id));
         restaurantMenuItem = mapRequestMenuItemToMenuItem(requestMenuItem
                 , restaurantMenuItem);
         restaurantMenuItem = menuItemRepository.save(restaurantMenuItem);
@@ -88,6 +99,7 @@ public class KitchenServiceImpl implements KitchenService {
     public ResponseOrdersList getOrdersByStatusKitchen(String status) {
         return getOrdersByStatus("KITCHEN_" + status.toUpperCase());
     }
+
     private ResponseOrdersList getOrdersByStatus(String requestOrderStatus) {
         OrderStatus status = validator.validAndReturnStatus(requestOrderStatus);
         var orders = ordersRepository.getOrdersByStatus(status);
@@ -116,10 +128,10 @@ public class KitchenServiceImpl implements KitchenService {
             , RestaurantMenuItem restaurantMenuItem) {
         long restaurantId = requestMenuItem.getRestaurantId();
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(()-> new RestaurantNotFoundException(restaurantId));
+                .orElseThrow(() -> new RestaurantNotFoundException(restaurantId));
         restaurantMenuItem.setRestaurantId(restaurant);
         restaurantMenuItem.setName(requestMenuItem.getName());
-        restaurantMenuItem.setPrice(requestMenuItem.getPrice()*MONEY_KOEFFICIENT);
+        restaurantMenuItem.setPrice(requestMenuItem.getPrice() * MONEY_KOEFFICIENT);
         restaurantMenuItem.setImage(requestMenuItem.getImage());
         restaurantMenuItem.setDescription(requestMenuItem.getDescription());
         return restaurantMenuItem;

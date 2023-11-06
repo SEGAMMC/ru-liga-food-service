@@ -12,9 +12,12 @@ import ru.liga.entity.*;
 import ru.liga.enums.OrderStatus;
 import ru.liga.exception.*;
 import ru.liga.repository.hibernate.*;
+import ru.liga.service.interfaces.OrderService;
+import ru.liga.service.interfaces.RabbitMQProducerService;
 import ru.liga.util.Validator;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -50,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseOrdersList getOrdersByCustomerId(long customerId) {
-
+        validator.isPositive(customerId);
         Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
 
         var orders = ordersRepository.findByCustomerId(customer);
@@ -65,6 +68,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void updateOrderStatus(RequestOrderStatus requestOrderStatus, long orderId) {
+        validator.isPositive(orderId);
         validator.isValidRequestStatus(requestOrderStatus);
 
         Order orderById = ordersRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
@@ -74,6 +78,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseOrder getOrderById(long orderId) {
+        validator.isPositive(orderId);
         Order orderById = ordersRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
         ResponseRestaurantName respRestaurantName = new ResponseRestaurantName();
         respRestaurantName.setName(orderById.getRestaurantId().getName());
@@ -84,6 +89,7 @@ public class OrderServiceImpl implements OrderService {
         respOrder.setTimestamp(orderById.getTimeStamp());
 
         respOrder.setItems(mapOrderItemToResponseOrderItem(orderById.getItems()));
+
         return respOrder;
     }
 
@@ -121,11 +127,10 @@ public class OrderServiceImpl implements OrderService {
         order.setItems(orderItemsList);
         ordersRepository.save(order);
 
-        //TODO включить rabbitMQ
-//        sendOrderToQueue(order); //отправка заказа в очередь OrdersQueue
+        sendOrderToQueue(order); //отправка заказа в очередь OrdersQueue
 
-        LocalDateTime timeCreate = order.getTimeStamp();
-        LocalDateTime timeDelivery = timeCreate.plusMinutes(DEFAUL_TIME_DELIVERY);
+        LocalDateTime  timeCreate = order.getTimeStamp();
+        LocalDateTime  timeDelivery = timeCreate.plusMinutes(DEFAUL_TIME_DELIVERY);
         ResponseOrderAccept responseOrderAccept = new ResponseOrderAccept();
         responseOrderAccept.setSecretPaymentUrl(URL_PREFIX + UUID.randomUUID());
         responseOrderAccept.setEstimatedTimeOfArrival(timeDelivery);

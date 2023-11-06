@@ -6,5 +6,4 @@ import ru.liga.entity.RestaurantMenuItem;
 
 public interface RestaurantMenuItemRepository
         extends CrudRepository<RestaurantMenuItem, Long> {
-
 }

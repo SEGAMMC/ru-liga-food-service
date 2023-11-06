@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    gateway:
+      routes:
+        - id: order-services
+          uri: http://127.0.0.1:9000/register
+          predicates:
+            - Path=/register/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+        - id: order-service
+          uri: http://127.0.0.1:8081/order
+          predicates:
+            - Path=/order/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+        - id: kitchen-service
+          uri: http://127.0.0.1:8082/kitchen
+          predicates:
+            - Path=/kitchen/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+
+        - id: delivery-service
+          uri: http://127.0.0.1:8083/delivery
+          predicates:
+            - Path=/delivery/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+  security:
+    oauth2:
+      client:
+        registration:
+          gateway:
+            provider: spring
+            client-id: gateway
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://127.0.0.1:8080/login/oauth2/code/{registrationId}"
+            scope: openid,message.read
+        provider:
+          spring:
+            issuer-uri: http://localhost:9000

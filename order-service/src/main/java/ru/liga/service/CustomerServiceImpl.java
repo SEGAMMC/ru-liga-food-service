@@ -8,6 +8,7 @@ import ru.liga.dto.response.*;
 import ru.liga.entity.*;
 import ru.liga.exception.CustomerNotFoundException;
 import ru.liga.repository.hibernate.*;
+import ru.liga.service.interfaces.CustomerService;
 import ru.liga.util.Validator;
 
 

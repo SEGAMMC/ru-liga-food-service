@@ -1,4 +1,4 @@
-package ru.liga.service;
+package ru.liga.service.interfaces;
 
 public interface RabbitMQProducerService {
 

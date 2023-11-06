@@ -1,6 +1,5 @@
 package ru.liga.exception;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -66,6 +65,13 @@ public class ErrorHandler {
     public ApiError handleNotFoundException(final CourierNotFoundException e) {
         log.info("404", e.getMessage(), e);
         return new ApiError("404", "This courier not found", LocalDateTime.now());
+    }
+
+    @ExceptionHandler(RequestPriceInvalidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleRequestPriceInvalidException(final RequestPriceInvalidException e) {
+        log.info("400", e.getMessage(), e);
+        return new ApiError("400", "Request price invalid. "+ e.getMessage(), LocalDateTime.now());
     }
 
 

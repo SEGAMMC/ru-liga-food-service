@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.liga.dto.request.RequestMenuItem;
 import ru.liga.dto.request.RequestOrderStatus;
+import ru.liga.dto.request.RequestUpdatePriceMenuItem;
 import ru.liga.dto.response.ResponseMenuItem;
 import ru.liga.dto.response.ResponseOrdersList;
 import ru.liga.service.interfaces.KitchenService;
@@ -67,6 +68,15 @@ public class KitchenController {
         ResponseOrdersList kitchenOrderList = kitchenService
                 .getOrdersByStatusKitchen(status);
         return new ResponseEntity<>(kitchenOrderList, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Изменить цену блюда в меню")
+    @PutMapping("/item/{id}")
+    public ResponseEntity<Void> updatePriceByMenuItem(
+            @RequestBody RequestUpdatePriceMenuItem requestUpdatePriceMenuItem,
+            @PathVariable(name = "id") long id) {
+        kitchenService.updatePriceByMenuItem(requestUpdatePriceMenuItem, id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
