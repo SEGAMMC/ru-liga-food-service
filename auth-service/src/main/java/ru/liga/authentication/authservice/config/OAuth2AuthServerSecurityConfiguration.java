@@ -126,7 +126,7 @@ public class OAuth2AuthServerSecurityConfiguration {
 
         JdbcUserDetailsManager jdbcUserDetailsManager =
                 new JdbcUserDetailsManager(jdbcTemplate.getDataSource());
-//        jdbcUserDetailsManager.deleteUser("user");
+        jdbcUserDetailsManager.deleteUser("user");
         jdbcUserDetailsManager.createUser(customUserDetails);
 
         return jdbcUserDetailsManager;

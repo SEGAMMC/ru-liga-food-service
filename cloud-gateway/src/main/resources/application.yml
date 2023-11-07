@@ -8,7 +8,7 @@ spring:
     gateway:
       routes:
         - id: order-service
-          uri: http://127.0.0.1:8081/
+          uri: http://127.0.0.1:8081/order
           predicates:
             - Path=/order/**
           filters:
@@ -17,7 +17,7 @@ spring:
             - RewritePath=/order/(?<path>.*),/$\{path}
 
         - id: customer-service
-          uri: http://127.0.0.1:8081/
+          uri: http://127.0.0.1:8081/customer
           predicates:
             - Path=/customer/**
           filters:
@@ -26,7 +26,7 @@ spring:
             - RewritePath=/customer/(?<path>.*),/$\{path}
 
         - id: kitchen-service
-          uri: http://127.0.0.1:8082/
+          uri: http://127.0.0.1:8082/kitchen
           predicates:
             - Path=/kitchen/**
           filters:
@@ -35,7 +35,7 @@ spring:
             - RewritePath=/kitchen/(?<path>.*),/$\{path}
 
         - id: restaurant-service
-          uri: http://127.0.0.1:8082/
+          uri: http://127.0.0.1:8082/restaurant
           predicates:
             - Path=/restaurant/**
           filters:
@@ -44,7 +44,7 @@ spring:
             - RewritePath=/restaurant/(?<path>.*),/$\{path}
 
         - id: courier-service
-          uri: http://127.0.0.1:8083/
+          uri: http://127.0.0.1:8083/courier
           predicates:
             - Path=/courier/**
           filters:
@@ -53,13 +53,22 @@ spring:
             - RewritePath=/courier/(?<path>.*),/$\{path}
 
         - id: delivery-service
-          uri: http://127.0.0.1:8083/
+          uri: http://127.0.0.1:8083/delivery
           predicates:
             - Path=/delivery/**
           filters:
             - TokenRelay=
             - RemoveRequestHeader=Cookie
             - RewritePath=/delivery/(?<path>.*),/$\{path}
+
+        - id: register
+          uri: http://127.0.0.1:9000/register
+          predicates:
+            - Path=/register/**
+          filters:
+            - TokenRelay=
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/register/(?<path>.*),/$\{path}
 
   security:
     oauth2:
