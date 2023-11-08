@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 public class RabbitMQProducerServiceImpl{
 //        implements RabbitMQProducerService
 //{
-	private final String exchange = "DeliveryDirectExchange";
-	private final String routingKey = "delivery.all";
+//	private final String exchange = "DeliveryDirectExchange";
+//	private final String routingKey = "delivery.all";
 	
 //    @Autowired
 //    private final RabbitTemplate rabbitTemplate;

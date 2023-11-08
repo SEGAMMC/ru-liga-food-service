@@ -11,7 +11,8 @@ import java.util.List;
 @Builder
 @ToString
 public class RequestOrder {
-	
+    private Long customerId;
+
     private Long restaurantId;
 	
     private List<RequestOrderItem> orderItems;

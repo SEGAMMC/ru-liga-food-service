@@ -1,18 +1,14 @@
 package ru.liga.exception;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.liga.exception.exceptions.*;
 
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestControllerAdvice
 @Slf4j
@@ -50,14 +46,14 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleRequestOrderInvalidException(final RequestOrderInvalidException e) {
         log.info("400", e.getMessage(), e);
-        return new ApiError("400", "Request Order information invalid. "+ e.getMessage(), LocalDateTime.now());
+        return new ApiError("400", "Request Order information invalid. " + e.getMessage(), LocalDateTime.now());
     }
 
     @ExceptionHandler(RequestMenuItemInvalidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleRequestMenuItemInvalidException(final RequestMenuItemInvalidException e) {
         log.info("400", e.getMessage(), e);
-        return new ApiError("400", "Request Menu Item information invalid. "+ e.getMessage(), LocalDateTime.now());
+        return new ApiError("400", "Request Menu Item information invalid. " + e.getMessage(), LocalDateTime.now());
     }
 
     @ExceptionHandler(CourierNotFoundException.class)
@@ -71,9 +67,36 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleRequestPriceInvalidException(final RequestPriceInvalidException e) {
         log.info("400", e.getMessage(), e);
-        return new ApiError("400", "Request price invalid. "+ e.getMessage(), LocalDateTime.now());
+        return new ApiError("400", "Request price invalid. " + e.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(CourierIllegalWorkException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleCourierIllegalWorkException(final CourierIllegalWorkException e) {
+        log.info("400", e.getMessage(), e);
+        return new ApiError("400",  e.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(RequestInvalidPayException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleRequestInvalidPayException(final RequestInvalidPayException e) {
+        log.info("400", e.getMessage(), e);
+        return new ApiError("400",  e.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(RequestCustomerInvalidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleRequestCustomerInvalidException(final RequestCustomerInvalidException e) {
+        log.info("400", e.getMessage(), e);
+        return new ApiError("400",  e.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleRestaurantNotFoundException(final RestaurantNotFoundException e) {
+        log.info("404", e.getMessage(), e);
+        return new ApiError("404", "This courier not found", LocalDateTime.now());
     }
 
 
-	
 }

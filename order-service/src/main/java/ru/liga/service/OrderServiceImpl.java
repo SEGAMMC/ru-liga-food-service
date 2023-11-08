@@ -8,17 +8,17 @@ import org.springframework.stereotype.Service;
 import ru.liga.dto.request.RequestOrder;
 import ru.liga.dto.request.RequestOrderItem;
 import ru.liga.dto.request.RequestOrderStatus;
+import ru.liga.dto.request.RequestPay;
 import ru.liga.dto.response.*;
 import ru.liga.entity.*;
 import ru.liga.enums.OrderStatus;
-import ru.liga.exception.*;
+import ru.liga.exception.exceptions.*;
 import ru.liga.repository.hibernate.*;
 import ru.liga.service.interfaces.OrderService;
 import ru.liga.service.interfaces.RabbitMQProducerService;
 import ru.liga.util.Validator;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +39,129 @@ public class OrderServiceImpl implements OrderService {
     private final RestaurantMenuItemRepository restaurantMenuItemRepository;
     private final RabbitMQProducerService rabbitMQProducerService;
     private final ObjectMapper objectMapper;
+
+    @Override
+    public ResponseOrderAccept createNewOrder(RequestOrder requestOrder) {
+        validator.checkRequestOrder(requestOrder, requestOrder.getCustomerId());
+        Order order = new Order();
+        List<OrderItem> orderItemsList = new ArrayList<>();
+        Customer customer = customerRepository.findById(requestOrder.getCustomerId())
+                .orElseThrow(() -> new CustomerNotFoundException(requestOrder.getCustomerId()));
+        Restaurant restaurant = restaurantRepository.findById(requestOrder.getRestaurantId())
+                .orElseThrow(() -> new RestaurantNotFoundException(requestOrder.getRestaurantId()));
+
+        order.setCustomerId(customer);
+        order.setRestaurantId(restaurant);
+        order.setStatus(OrderStatus.CUSTOMER_CREATED);
+        order.setTimeStamp(LocalDateTime.now());
+        order = ordersRepository.save(order);
+
+        List<RequestOrderItem> requestOrderItemList = requestOrder.getOrderItems();
+        for (RequestOrderItem requestOrderItem : requestOrderItemList) {
+            OrderItem orderItem = new OrderItem();
+            RestaurantMenuItem restaurantMenuItem = restaurantMenuItemRepository
+                    .findById(requestOrderItem.getMenuItemId())
+                    .orElseThrow(() -> new MenuItemNotFoundException(
+                            requestOrderItem.getMenuItemId()));
+
+            orderItem.setQuantity(requestOrderItem.getQuantity());
+            orderItem.setRestaurantMenuItem(restaurantMenuItem);
+            orderItem.setPrice(restaurantMenuItem.getPrice() * requestOrderItem.getQuantity());
+            orderItem.setOrderId(order);
+            orderItemRepository.save(orderItem);
+            orderItemsList.add(orderItem);
+        }
+
+        String newUUID = UUID.randomUUID().toString();
+        order.setUUID(newUUID);
+        order.setItems(orderItemsList);
+        order = ordersRepository.save(order);
+
+        LocalDateTime timeCreate = order.getTimeStamp();
+        LocalDateTime timeDelivery = timeCreate.plusMinutes(DEFAUL_TIME_DELIVERY);
+        ResponseOrderAccept responseOrderAccept = new ResponseOrderAccept();
+        responseOrderAccept.setSecretPaymentUrl(URL_PREFIX + newUUID);
+        responseOrderAccept.setEstimatedTimeOfArrival(timeDelivery);
+        responseOrderAccept.setId(order.getId());
+        log.info("[OrderServiceImpl:createNewOrder]:" +
+                " Создали новый заказ с id {}", order.getId());
+        //todo отправить оповещение клиенту принят
+        return responseOrderAccept;
+    }
+
+    @Override
+    public void payOrder(RequestPay requestPay) {
+        Order order = ordersRepository.findOrderByUUID(requestPay.getUuid());
+        if (order == null) {
+            throw new OrderNotFoundException(requestPay.getCustomerId());
+        }
+        if (order.getStatus().equals(OrderStatus.CUSTOMER_PAID)) {
+            log.info("[OrderServiceImpl:payOrder]:" +
+                    " Попытка оплатить уже оплаченный заказ {}", order.getUUID());
+            throw new RequestInvalidPayException(requestPay, "repeat");
+        }
+
+        if (order.getStatus().equals(OrderStatus.CUSTOMER_CREATED)) {
+            order.setStatus(OrderStatus.CUSTOMER_PAID);
+            ordersRepository.save(order);
+            sendOrderToQueue(order); //отправка заказа в очередь OrdersQueue
+            log.info("[OrderServiceImpl:payOrder]:" +
+                    " Оплатили заказ {}", order.getUUID());
+            //todo отправить оповещение клиенту что оплачен
+            //todo отправить оповещение на заказ на кухню
+        } else throw new RequestInvalidPayException(requestPay);
+    }
+
+
+    @Override
+    public void cancelOrderById(String UUID) {
+        Order order = ordersRepository.findOrderByUUID(UUID);
+        if (order == null) {
+            throw new OrderNotFoundException(UUID);
+        }
+
+        if (order.getStatus().equals(OrderStatus.CUSTOMER_PAID)) {
+            log.info("[OrderServiceImpl:payOrder]:" +
+                    " Закрываем/отменяем уже оплаченный заказ {}", order.getUUID());
+            //todo отправить оповещение клиенту об отмене
+            //todo отправить оповещение на кухню об отмене
+
+            order.setStatus(OrderStatus.CUSTOMER_CANCELLED);
+            ordersRepository.save(order);
+            refundMoneyById(UUID);
+        } else if (order.getStatus().equals(OrderStatus.CUSTOMER_CREATED)) {
+            log.info("[OrderServiceImpl:payOrder]:" +
+                    " Закрываем/отменяем заказ {}", order.getUUID());
+            //todo отправить оповещение клиенту об отмене
+            //todo отправить оповещение на кухню об отмене
+            order.setStatus(OrderStatus.CUSTOMER_CANCELLED);
+            ordersRepository.save(order);
+        } else throw new RequestInvalidPayException(UUID);
+    }
+
+    @Override
+    public void updateOrderStatusByDelivery(RequestOrderStatus requestOrderStatus) {
+        validator.isValidRequestStatus(requestOrderStatus);
+        Order order = ordersRepository.findOrderByUUID(requestOrderStatus.getUuid());
+        if (order == null) {
+            throw new OrderNotFoundException(requestOrderStatus.getUuid());
+        }
+        if (order.getStatus().equals(OrderStatus.DELIVERY_DELIVERING)) {
+            order.setStatus(requestOrderStatus.getStatus());
+            order = ordersRepository.save(order);
+        }
+        if (order.getStatus().equals(OrderStatus.DELIVERY_PENDING)) {
+            order.setStatus(requestOrderStatus.getStatus());
+            order = ordersRepository.save(order);
+        }
+
+
+        log.info("[OrderServiceImpl:updateOrderStatusByDelivery]:" +
+                " Изменили статус заказа с id {}, новый статус {}", order.getUUID(), order.getStatus());
+
+        //TODO  сообщить клиенту o статусе
+
+    }
 
     @Override
     public ResponseOrdersList getOrders() {
@@ -69,18 +192,6 @@ public class OrderServiceImpl implements OrderService {
         return respOrdersList;
     }
 
-    @Override
-    public void updateOrderStatus(RequestOrderStatus requestOrderStatus, long orderId) {
-        validator.isPositive(orderId);
-        validator.isValidRequestStatus(requestOrderStatus);
-
-        Order orderById = ordersRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
-        orderById.setStatus(requestOrderStatus.getStatus());
-        orderById = ordersRepository.save(orderById);
-        log.info("[OrderServiceImpl:updateOrderStatus]:" +
-                " Изменили статус заказа с id {}, новый статус {}", orderById.getId(),orderById.getStatus());
-    }
 
     @Override
     public ResponseOrder getOrderById(long orderId) {
@@ -92,12 +203,9 @@ public class OrderServiceImpl implements OrderService {
 
         ResponseOrder respOrder = new ResponseOrder();
         respOrder.setId(orderById.getId());
+        respOrder.setUuid(orderById.getUUID());
         respOrder.setRestaurant(respRestaurantName);
         respOrder.setTimestamp(orderById.getTimeStamp());
-
-        //TODO убрать
-        sendOrderToQueue(orderById); //отправка заказа в очередь OrdersQueue
-
         respOrder.setItems(mapOrderItemToResponseOrderItem(orderById.getItems()));
         log.info("[OrderServiceImpl:getOrderById]:" +
                 " Получили информацию о заказе с id {}", orderById.getId());
@@ -105,51 +213,102 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ResponseOrderAccept createNewOrder(RequestOrder requestOrder, long customerId) {
-        validator.checkRequestOrder(requestOrder, customerId);
-        Order order = new Order();
-        List<OrderItem> orderItemsList = new ArrayList<>();
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(customerId));
-        Restaurant restaurant = restaurantRepository.findById(requestOrder.getRestaurantId())
-                .orElseThrow(() -> new RestaurantNotFoundException(requestOrder.getRestaurantId()));
-
-        order.setCustomerId(customer);
-        order.setRestaurantId(restaurant);
-        order.setStatus(OrderStatus.CUSTOMER_CREATED);
-        order.setTimeStamp(LocalDateTime.now());
-        order = ordersRepository.save(order);
-
-        List<RequestOrderItem> requestOrderItemList = requestOrder.getOrderItems();
-        for (RequestOrderItem requestOrderItem : requestOrderItemList) {
-            OrderItem orderItem = new OrderItem();
-            RestaurantMenuItem restaurantMenuItem = restaurantMenuItemRepository
-                    .findById(requestOrderItem.getMenuItemId())
-                    .orElseThrow(() -> new MenuItemNotFoundException(
-                            requestOrderItem.getMenuItemId()));
-
-            orderItem.setQuantity(requestOrderItem.getQuantity());
-            orderItem.setRestaurantMenuItem(restaurantMenuItem);
-            orderItem.setPrice(restaurantMenuItem.getPrice() * requestOrderItem.getQuantity());
-            orderItem.setOrderId(order);
-            orderItemRepository.save(orderItem);
-            orderItemsList.add(orderItem);
+    public ResponseOrder getOrderByUuid(String uuid) {
+        Order orderById = ordersRepository.findOrderByUUID(uuid);
+        if (orderById == null) {
+            throw new OrderNotFoundException(uuid);
         }
-        order.setItems(orderItemsList);
+        ResponseRestaurantName respRestaurantName = new ResponseRestaurantName();
+        respRestaurantName.setName(orderById.getRestaurantId().getName());
+
+        ResponseOrder respOrder = new ResponseOrder();
+        respOrder.setId(orderById.getId());
+        respOrder.setUuid(orderById.getUUID());
+        respOrder.setRestaurant(respRestaurantName);
+        respOrder.setTimestamp(orderById.getTimeStamp());
+        respOrder.setItems(mapOrderItemToResponseOrderItem(orderById.getItems()));
+        log.info("[OrderServiceImpl:getOrderByUuid]:" +
+                " Получили информацию о заказе с id {}", orderById.getUUID());
+        return respOrder;
+    }
+
+    private void refundMoneyById(String UUID) {
+        log.info("[OrderServiceImpl:refundMoneyById]:" +
+                " Оформляяем возврат денежных средств по заказу id {}", UUID);
+
+        //todo отправить оповещение клиенту
+    }
+
+
+    @Override
+    public ResponseOrderStatusByKitchen getOrderByUuidByKitchen(String uuid) {
+        Order orderById = ordersRepository.findOrderByUUID(uuid);
+        if (orderById == null) {
+            throw new OrderNotFoundException(uuid);
+        }
+
+        ResponseOrderStatusByKitchen respOrder = new ResponseOrderStatusByKitchen();
+        respOrder.setOrderStatus(orderById.getStatus());
+
+        log.info("[OrderServiceImpl:getOrderByUuidByKitchen]:" +
+                " Получили информацию о заказе с id {}", orderById.getUUID());
+        return respOrder;
+    }
+
+    @Override
+    public ResponseOrderStatusByDelivery getOrderByUuidByDelivery(String uuid) {
+        Order orderById = ordersRepository.findOrderByUUID(uuid);
+        if (orderById == null) {
+            throw new OrderNotFoundException(uuid);
+        }
+
+        ResponseOrderStatusByDelivery respOrder = new ResponseOrderStatusByDelivery();
+        respOrder.setOrderStatus(orderById.getStatus());
+
+        log.info("[OrderServiceImpl:getOrderByUuidByDelivery]:" +
+                " Получили информацию о заказе с id {}", orderById.getUUID());
+        return respOrder;
+    }
+
+
+    @Override
+    public void updateOrderStatusByKitchen(RequestOrderStatus requestOrderStatus) {
+        validator.isValidRequestStatus(requestOrderStatus);
+        Order order = ordersRepository.findOrderByUUID(requestOrderStatus.getUuid());
+        if (order == null) {
+            throw new OrderNotFoundException(requestOrderStatus.getUuid());
+        }
+        order.setStatus(requestOrderStatus.getStatus());
         order = ordersRepository.save(order);
 
-        sendOrderToQueue(order); //отправка заказа в очередь OrdersQueue
-
-        LocalDateTime timeCreate = order.getTimeStamp();
-        LocalDateTime timeDelivery = timeCreate.plusMinutes(DEFAUL_TIME_DELIVERY);
-        ResponseOrderAccept responseOrderAccept = new ResponseOrderAccept();
-        responseOrderAccept.setSecretPaymentUrl(URL_PREFIX + UUID.randomUUID());
-        responseOrderAccept.setEstimatedTimeOfArrival(timeDelivery);
-        responseOrderAccept.setId(order.getId());
-        log.info("[OrderServiceImpl:createNewOrder]:" +
-                " Создали новый заказ с id {}", order.getId());
-        return responseOrderAccept;
+        if (order.getStatus().equals(OrderStatus.KITCHEN_DENIED)) {
+            refundMoneyById(order.getUUID());
+        }
+        log.info("[OrderServiceImpl:updateOrderStatusByKitchen]:" +
+                " Изменили статус заказа с id {}, новый статус {}", order.getUUID(), order.getStatus());
+        //TODO  сообщить клиенту o статусе
     }
+
+//////////////////////////////////////////////////////////////////////////////////
+
+
+    @Override
+    public void updateOrderStatus(RequestOrderStatus requestOrderStatus) {
+        validator.isValidRequestStatus(requestOrderStatus);
+
+        Order order = ordersRepository.findOrderByUUID(requestOrderStatus.getUuid());
+        if (order == null) {
+            throw new OrderNotFoundException(requestOrderStatus.getUuid());
+        }
+
+
+        order.setStatus(requestOrderStatus.getStatus());
+        order = ordersRepository.save(order);
+        log.info("[OrderServiceImpl:updateOrderStatus]:" +
+                        " Изменили статус заказа с id {}, новый статус {}", order.getUUID()
+                , order.getStatus().toString());
+    }
+
 
     @Override
     public ResponseOrdersList getOrdersByStatusCustomer(String status) {
@@ -162,9 +321,21 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ResponseOrdersList getOrdersByStatusDelivery(String status) {
-        return getOrdersByStatus("DELIVERY_" + status.toUpperCase());
+    public List<ResponseDeliveryOrderForFindCourier> getOrdersByStatusDelivery() {
+        List<ResponseDeliveryOrderForFindCourier> responseOrderList = new ArrayList<>();
+        var orders = ordersRepository.getOrdersByStatus(OrderStatus.DELIVERY_PENDING);
+
+        for (Order order : orders) {
+            ResponseDeliveryOrderForFindCourier respDeliveryOrder =
+                    new ResponseDeliveryOrderForFindCourier();
+            respDeliveryOrder.setUuid(order.getUUID());
+            respDeliveryOrder.setAddressRestaurant(order.getRestaurantId().getAddress());
+            respDeliveryOrder.setAddressCustomer(order.getCustomerId().getAddress());
+            responseOrderList.add(respDeliveryOrder);
+        }
+        return responseOrderList;
     }
+
 
     private ResponseOrdersList getOrdersByStatus(String requestOrderStatus) {
         OrderStatus status = validator.validAndReturnStatus(requestOrderStatus);

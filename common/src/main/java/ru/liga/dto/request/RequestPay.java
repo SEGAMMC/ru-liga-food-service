@@ -1,7 +1,8 @@
 package ru.liga.dto.request;
 
 import lombok.*;
-import ru.liga.enums.OrderStatus;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -9,10 +10,11 @@ import ru.liga.enums.OrderStatus;
 @Getter
 @Builder
 @ToString
-public class RequestOrderStatus {
+public class RequestPay {
+
+    private long customerId;
 
     private String uuid;
-	
-    private OrderStatus status;
-	
+
 }
+

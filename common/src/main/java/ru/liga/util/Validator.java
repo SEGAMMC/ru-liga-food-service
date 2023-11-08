@@ -4,9 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.liga.dto.request.*;
-import ru.liga.entity.Restaurant;
 import ru.liga.enums.OrderStatus;
-import ru.liga.exception.*;
+import ru.liga.exception.exceptions.*;
 import ru.liga.repository.hibernate.CustomerRepository;
 import ru.liga.repository.hibernate.OrdersRepository;
 import ru.liga.repository.hibernate.RestaurantMenuItemRepository;
@@ -25,12 +24,14 @@ public class Validator {
     private final CustomerRepository customerRepository;
     private final RestaurantMenuItemRepository menuItemRepository;
 
+
     public void checkRequestOrder(RequestOrder requestOrder, long customerId) {
         List<String> errorList = new ArrayList<>();
         boolean isValid = true;
         long requestRestaurantId = requestOrder.getRestaurantId();
         if (requestRestaurantId <= 0) {
-            errorList.add("Restaurant id: " + requestRestaurantId + " no valid. Restaurant id<=0.");
+            errorList.add("Restaurant id: " + requestRestaurantId + " no valid." +
+                    " Restaurant id<=0.");
             isValid = false;
         } else {
             if (!restaurantRepository.existsById(requestRestaurantId)) {
@@ -66,7 +67,9 @@ public class Validator {
                     long restaurantId = menuItemRepository.findById(menuItemId).get()
                             .getRestaurantId().getId();
                     if (restaurantId != requestRestaurantId) {
-                        errorList.add("This MenuItem with id: " + menuItemId + " not found in restaurant with id: " + requestRestaurantId);
+                        errorList.add("This MenuItem with id: " + menuItemId
+                                + " not found in restaurant with id: "
+                                + requestRestaurantId);
                         isValid = false;
                     }
                 } else {
@@ -83,7 +86,7 @@ public class Validator {
 
     public boolean isValidRequestStatus(RequestOrderStatus requestOrderStatus) {
         boolean validRequestStatus = Stream.of(OrderStatus.values())
-                .anyMatch(v -> v.name().equals(requestOrderStatus));
+                .anyMatch(v -> v.name().equals(requestOrderStatus.getStatus()));
         if (validRequestStatus) {
             throw new RequestOrderStatusInvalidException(requestOrderStatus.toString());
         }
@@ -108,7 +111,6 @@ public class Validator {
             throw new RequestCustomerInvalidException(id);
         }
         return true;
-
     }
 
     public boolean isPositive(double id) {
@@ -116,14 +118,15 @@ public class Validator {
             throw new RequestPriceInvalidException(id);
         }
         return true;
-
     }
+
     public void checkRequestMenuItem(RequestMenuItem requestMenuItem) {
         List<String> errorList = new ArrayList<>();
         boolean isValid = true;
         long requestRestaurantId = requestMenuItem.getRestaurantId();
         if (requestRestaurantId <= 0) {
-            errorList.add("Restaurant id: " + requestRestaurantId + " no valid. Restaurant id<=0.");
+            errorList.add("Restaurant id: " + requestRestaurantId + " no valid." +
+                    " Restaurant id<=0.");
             isValid = false;
         }
 
@@ -132,11 +135,8 @@ public class Validator {
             errorList.add("Price " + requestPrice + " no valid. Price<=0.");
             isValid = false;
         }
-
         if (!isValid) {
             throw new RequestMenuItemInvalidException(errorList.toString());
         }
-
     }
-
 }

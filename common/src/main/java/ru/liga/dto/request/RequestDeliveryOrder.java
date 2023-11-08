@@ -1,7 +1,8 @@
-package ru.liga.dto.response;
+package ru.liga.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import ru.liga.dto.response.ResponseCustomerDelivery;
+import ru.liga.dto.response.ResponseRestaurantDelivery;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -9,7 +10,7 @@ import lombok.*;
 @Getter
 @Builder
 @ToString
-public class ResponseDeliveryOrder {
+public class RequestDeliveryOrder {
 	
 	private String uuid;
 	
@@ -18,7 +19,5 @@ public class ResponseDeliveryOrder {
     private ResponseCustomerDelivery customer;
 	
 	private String payment;
-
-    @JsonIgnore
-    private double sumDistance;
+	
 }

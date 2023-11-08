@@ -15,4 +15,6 @@ public interface OrdersRepository
 
     Iterable<Order> findByCustomerId(Customer customerId);
 
+    Order findOrderByUUID (String uuid);
+
 }

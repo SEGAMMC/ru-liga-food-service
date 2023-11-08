@@ -1,6 +1,7 @@
 package ru.liga.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -26,7 +27,11 @@ public class Order {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long id;
+
+    @Column(name = "uuid")
+    private String uuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
@@ -52,5 +57,6 @@ public class Order {
 
     @OneToMany(mappedBy = "orderId", fetch = FetchType.LAZY)
     private List<OrderItem> items;
+
 
 }

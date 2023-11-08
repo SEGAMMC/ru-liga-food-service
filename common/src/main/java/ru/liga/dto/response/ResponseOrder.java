@@ -2,6 +2,7 @@ package ru.liga.dto.response;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -19,16 +20,19 @@ import java.util.List;
 @Builder
 @ToString
 public class ResponseOrder {
-	
+
+    @JsonIgnore
     private long id;
-	
+
+    private String uuid;
+
     private ResponseRestaurantName restaurant;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime timestamp;
-	
+
     private List<ResponseOrderItem> items;
 
 }

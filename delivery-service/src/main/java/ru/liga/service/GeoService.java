@@ -14,9 +14,9 @@ import java.util.Map;
 public class GeoService {
     private final double EARTH_RADIUS = 6372795; //радиус земли в метрах
 
-    public double determineDistance(Courier courier, Restaurant restaurant) {
-        String[] addressRestaurant = restaurant.getAddress().split("\\|");
-        String coordCourierByOrder = courier.getCoordinates();
+    public double determineDistanceCourToRest(String courier, String restaurant) {
+        String[] addressRestaurant = restaurant.split("\\|");
+        String coordCourierByOrder = courier;
         String coordRestaurantByOrder = addressRestaurant[1];
 
         Map<String, Double> coordsCourier = parseCoords(coordCourierByOrder);
@@ -25,9 +25,9 @@ public class GeoService {
         return determineDistanceByMapXY(coordsCourier, coordsRestaurant);
     }
 
-    public double determineDistance(Restaurant restaurant, Customer customer) {
-        String[] addressRestaurant = restaurant.getAddress().split("\\|");
-        String[] addressCustomer = customer.getAddress().split("\\|");
+    public double determineDistanceRestToCustom(String restaurant, String customer) {
+        String[] addressRestaurant = restaurant.split("\\|");
+        String[] addressCustomer = customer.split("\\|");
 
         String coordRestaurantByOrder = addressRestaurant[1];
         String coordCustomerByOrder = addressCustomer[1];

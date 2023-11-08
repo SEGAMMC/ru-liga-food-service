@@ -19,7 +19,7 @@ public class RoutingMQConfig {
         DirectExchange directExchange = new DirectExchange("pushOrdersDirectExchange");
 
         return new Declarables(queueDirectCouriers, directExchange,
-            BindingBuilder.bind(queueDirectCouriers).to(directExchange).with("order.new")
+                BindingBuilder.bind(queueDirectCouriers).to(directExchange).with("order.new")
         );
     }
 

@@ -1,4 +1,5 @@
-package ru.liga.dto.request;
+package ru.liga.dto.response;
+
 
 import lombok.*;
 import ru.liga.enums.OrderStatus;
@@ -9,10 +10,8 @@ import ru.liga.enums.OrderStatus;
 @Getter
 @Builder
 @ToString
-public class RequestOrderStatus {
+public class ResponseOrderStatusByKitchen {
 
     private String uuid;
-	
-    private OrderStatus status;
-	
+    private OrderStatus orderStatus;
 }

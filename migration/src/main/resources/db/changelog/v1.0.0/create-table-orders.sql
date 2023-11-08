@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS orders
 (
     id            BIGSERIAL,
+    uuid          VARCHAR(50) NOT NULL,
     status        VARCHAR(20),
     timestamp     TIMESTAMPTZ NOT NULL,
     customer_id   BIGINT NOT NULL,
@@ -14,6 +15,7 @@ CREATE TABLE IF NOT EXISTS orders
 
 COMMENT ON TABLE orders IS 'Список заказов';
 COMMENT ON COLUMN orders.id IS 'Номер заказа';
+COMMENT ON COLUMN orders.uuid IS 'Номер UUID';
 COMMENT ON COLUMN orders.status IS 'Статус заказа';
 COMMENT ON COLUMN orders.timestamp IS 'Дата и время совершения заказа';
 COMMENT ON COLUMN orders.customer_id IS 'Номер клиента';

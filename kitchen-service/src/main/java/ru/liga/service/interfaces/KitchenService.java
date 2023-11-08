@@ -15,9 +15,13 @@ public interface KitchenService {
 	
 	ResponseMenuItem editMenuItem(RequestMenuItem requestMenuItem, long id);
 	
-	void updateOrderStatusByKitchen(RequestOrderStatus requestOrderStatus, long id);
+	void updateOrderStatusByKitchenAccept( String uuid);
 
-	public void updatePriceByMenuItem(RequestUpdatePriceMenuItem requestUpdatePriceMenuItem, long id);
+	void updateOrderStatusByKitchenDecline(String uuid);
+
+	void updateOrderStatusByKitchenReady(String uuid);
+
+	void updatePriceByMenuItem(RequestUpdatePriceMenuItem requestUpdatePriceMenuItem, long id);
 
 	ResponseOrdersList getOrdersByStatusKitchen(String status);
 	}

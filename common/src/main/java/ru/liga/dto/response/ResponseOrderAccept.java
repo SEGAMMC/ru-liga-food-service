@@ -1,6 +1,7 @@
 package ru.liga.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -17,8 +18,10 @@ import java.time.ZonedDateTime;
 @Builder
 @ToString
 public class ResponseOrderAccept {
-	
+	@JsonIgnore
     private long id;
+
+    private String uuid;
 	
     private String secretPaymentUrl;
 

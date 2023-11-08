@@ -37,10 +37,10 @@ public class OrderTest {
 				
 		//Отправляем 2 запрос в сервис, создавая 2 разных заказа
 		ResponseOrderAccept respOrderAccept1 = orderService
-				.createNewOrder(requestOrder, customerId);
+				.createNewOrder(requestOrder);
 				
 		ResponseOrderAccept respOrderAccept2 = orderService
-				.createNewOrder(requestOrder, customerId);		
+				.createNewOrder(requestOrder);
 				
 		//Проверяем что Id и SecretPaymentUrl заказов отличаются
 		assertThat(respOrderAccept1.getSecretPaymentUrl())
