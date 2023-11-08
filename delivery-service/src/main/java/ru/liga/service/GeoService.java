@@ -38,7 +38,6 @@ public class GeoService {
         return determineDistanceByMapXY(coordsRestaurant, coordsCustomer);
     }
 
-
     private double determineDistanceByMapXY(Map<String, Double> coord1, Map<String, Double> coord2) {
         double longitudeCoord1 = coord1.get("longitude");
         double latitudeCoord1 = coord1.get("latitude");
@@ -75,7 +74,6 @@ public class GeoService {
         return distance;
     }
 
-
     private Map<String, Double> parseCoords(String coords) {
         Map<String, Double> resultCoords = new HashMap<>();
         String[] twoCoords = coords.split(":");
@@ -86,6 +84,4 @@ public class GeoService {
         resultCoords.put("latitude", Double.parseDouble(latitude));
         return resultCoords;
     }
-
-
 }

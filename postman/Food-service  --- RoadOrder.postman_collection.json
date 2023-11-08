@@ -1,0 +1,390 @@
+{
+	"info": {
+		"_postman_id": "6cb049b0-a885-4faf-8563-248fbc363cbe",
+		"name": "Food-service  --- RoadOrder",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22878005"
+	},
+	"item": [
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "1. CreateNewOrder",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "custom",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "custom",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\t\t{\r\n            \"customerId\": \"2\",\r\n\t\t\t\"restaurantId\": \"1\",\r\n\t\t\t\"orderItems\": [\r\n\t\t\t\t{\r\n\t\t\t\t\t\"quantity\": \"5\",\r\n\t\t\t\t\t\"menuItemId\": \"3\"\r\n\t\t\t\t},\r\n                {\r\n\t\t\t\t\t\"quantity\": \"2\",\r\n\t\t\t\t\t\"menuItemId\": \"4\"\r\n\t\t\t\t}\r\n\t\t\t]\r\n\t\t}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. PayOrder",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "custom",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "custom",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\t\t{\r\n            \"uuid\": \"b8b51cb7-5908-421f-814a-0843418bf2af\",\r\n\t\t\t\"customerId\": \"2\"\t\t\t\r\n\t\t}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/orders/pay",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"orders",
+								"pay"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.1. Cancel order",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "custom",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "custom",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/orders/b8b51cb7-5908-421f-814a-0843418bf2af/cancel",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"orders",
+								"b8b51cb7-5908-421f-814a-0843418bf2af",
+								"cancel"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Kitchen",
+			"item": [
+				{
+					"name": "3.1. Accept",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "custom",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "custom",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\t\t{\r\n            \"customerId\": \"2\",\r\n\t\t\t\"restrauntId\": \"2\",\r\n\t\t\t\"menuItems\": [\r\n\t\t\t\t{\r\n\t\t\t\t\t\"quantity\": \"5\",\r\n\t\t\t\t\t\"menuItemId\": \"3\"\r\n\t\t\t\t},\r\n                {\r\n\t\t\t\t\t\"quantity\": \"2\",\r\n\t\t\t\t\t\"menuItemId\": \"6\"\r\n\t\t\t\t}\r\n\t\t\t]\r\n\t\t}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/api/kitchen/b8b51cb7-5908-421f-814a-0843418bf2af/accept",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"api",
+								"kitchen",
+								"b8b51cb7-5908-421f-814a-0843418bf2af",
+								"accept"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.2. Decline",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "custom",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "custom",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\t\t{\r\n            \"customerId\": \"2\",\r\n\t\t\t\"restrauntId\": \"2\",\r\n\t\t\t\"menuItems\": [\r\n\t\t\t\t{\r\n\t\t\t\t\t\"quantity\": \"5\",\r\n\t\t\t\t\t\"menuItemId\": \"3\"\r\n\t\t\t\t},\r\n                {\r\n\t\t\t\t\t\"quantity\": \"2\",\r\n\t\t\t\t\t\"menuItemId\": \"6\"\r\n\t\t\t\t}\r\n\t\t\t]\r\n\t\t}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/api/kitchen/b8b51cb7-5908-421f-814a-0843418bf2af/decline",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"api",
+								"kitchen",
+								"b8b51cb7-5908-421f-814a-0843418bf2af",
+								"decline"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Ready",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "custom",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "custom",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\t\t{\r\n            \"customerId\": \"2\",\r\n\t\t\t\"restrauntId\": \"2\",\r\n\t\t\t\"menuItems\": [\r\n\t\t\t\t{\r\n\t\t\t\t\t\"quantity\": \"5\",\r\n\t\t\t\t\t\"menuItemId\": \"3\"\r\n\t\t\t\t},\r\n                {\r\n\t\t\t\t\t\"quantity\": \"2\",\r\n\t\t\t\t\t\"menuItemId\": \"6\"\r\n\t\t\t\t}\r\n\t\t\t]\r\n\t\t}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/api/kitchen/b8b51cb7-5908-421f-814a-0843418bf2af/ready",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"api",
+								"kitchen",
+								"b8b51cb7-5908-421f-814a-0843418bf2af",
+								"ready"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delivery",
+			"item": [
+				{
+					"name": "5. Take",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "custom",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "custom",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\t\t{\r\n            \"customerId\": \"2\",\r\n\t\t\t\"restrauntId\": \"2\",\r\n\t\t\t\"menuItems\": [\r\n\t\t\t\t{\r\n\t\t\t\t\t\"quantity\": \"5\",\r\n\t\t\t\t\t\"menuItemId\": \"3\"\r\n\t\t\t\t},\r\n                {\r\n\t\t\t\t\t\"quantity\": \"2\",\r\n\t\t\t\t\t\"menuItemId\": \"6\"\r\n\t\t\t\t}\r\n\t\t\t]\r\n\t\t}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/delivery/b8b51cb7-5908-421f-814a-0843418bf2af/take",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"delivery",
+								"b8b51cb7-5908-421f-814a-0843418bf2af",
+								"take"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. Complete",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "custom",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "custom",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\t\t{\r\n            \"customerId\": \"2\",\r\n\t\t\t\"restrauntId\": \"2\",\r\n\t\t\t\"menuItems\": [\r\n\t\t\t\t{\r\n\t\t\t\t\t\"quantity\": \"5\",\r\n\t\t\t\t\t\"menuItemId\": \"3\"\r\n\t\t\t\t},\r\n                {\r\n\t\t\t\t\t\"quantity\": \"2\",\r\n\t\t\t\t\t\"menuItemId\": \"6\"\r\n\t\t\t\t}\r\n\t\t\t]\r\n\t\t}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/delivery/b8b51cb7-5908-421f-814a-0843418bf2af/complete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"delivery",
+								"b8b51cb7-5908-421f-814a-0843418bf2af",
+								"complete"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

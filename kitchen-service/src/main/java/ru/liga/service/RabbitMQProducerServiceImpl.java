@@ -2,28 +2,28 @@ package ru.liga.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-//import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import ru.liga.service.interfaces.RabbitMQProducerService;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
-public class RabbitMQProducerServiceImpl{
-//        implements RabbitMQProducerService
-//{
-//	private final String exchange = "DeliveryDirectExchange";
-//	private final String routingKey = "delivery.all";
-	
-//    @Autowired
-//    private final RabbitTemplate rabbitTemplate;
-//	private final ObjectMapper objectMapper;
+@Slf4j
+public class RabbitMQProducerServiceImpl implements RabbitMQProducerService {
+    private final RabbitTemplate rabbitTemplate;
 
+    @Override
+    public void pushNotificationCustomerByUpdateStatus(String message, String routingKey) {
+        rabbitTemplate.convertAndSend("notificationToCustomerDirectExchange"
+                , routingKey, message);
+        log.info( message);
+    }
 
-//	@Override
-//    public void sendOrderToDelivery(String orderId) {
-//        rabbitTemplate.convertAndSend(exchange, routingKey, orderId);
-//        log.info("Message has been sanded");
-//		System.out.println("Message has been sanded");
-//    }
+    @Override
+    public void pushNotificationDeliveryByNewOrder(String message, String routingKey) {
+        rabbitTemplate.convertAndSend("notificationToDeliveryDirectExchange"
+                , routingKey, message);
+        log.info( message);
+    }
+
 }

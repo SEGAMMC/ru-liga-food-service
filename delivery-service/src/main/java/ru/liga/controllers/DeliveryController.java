@@ -22,7 +22,6 @@ import java.util.List;
 public class DeliveryController {
     private final DeliveryService deliveryService;
 
-
     @Operation(summary = "Получить список доступных заказов имеющие статус DELIVERY_PENDING")
     @GetMapping("")
     public ResponseEntity<List<ResponseDeliveryOrder>> getDeliveryOrdersByStatusPending(
@@ -57,56 +56,4 @@ public class DeliveryController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
-
-
-
-//    @Operation(summary = "Обновить статус заказа доставки")
-//    @PutMapping("/{id}")
-//    public ResponseEntity<Void> updateDeliveryOrderStatus(
-//            @RequestBody RequestOrderStatus requestDeliveryStatus,
-//            @PathVariable(name = "id") Long id) {
-//        log.info("[DeliveryController:updateDeliveryOrderStatus]: " +
-//                        "Попытка изменить статус доставки для заказа с id {} на статус {}"
-//                , id, requestDeliveryStatus.getStatus().toString());
-//        deliveryService.updateDeliveryOrderStatus(requestDeliveryStatus, id);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//}
-
-
-//    @Operation(summary = "Получить список заказов имеющие соответствующий статус")
-//    @GetMapping("/orders")
-//    public ResponseEntity<List<ResponseDeliveryOrder>> getDeliveryOrdersByStatus11(
-//            @RequestParam(name = "status") String status) {
-//        log.info("[DeliveryController:getDeliveryOrdersByStatus]: " +
-//                "Попытка получить список заказов имеющие статус {}", status);
-//        List<ResponseDeliveryOrder> deliveryOrderList = deliveryService
-//                .getDeliveryOrdersByStatusPending();
-//        return new ResponseEntity<>(deliveryOrderList, HttpStatus.OK);
-//    }
-
-//    //TODO
-//    @Operation(summary = "Получить информацию о заказе по ID")
-//    @GetMapping("/{id}")
-//    public ResponseEntity<ResponseDeliveryOrder> getDeliveryOrderById(
-//            @PathVariable long id) {
-//        log.info("[DeliveryController:getDeliveryOrderById]: " +
-//                "Попытка получить информацию о заказе по id {}", id);
-//        ResponseDeliveryOrder deliveryOrder = deliveryService
-//                .getOrderByIdDelivery(id);
-//        return new ResponseEntity<>(deliveryOrder, HttpStatus.OK);
-//    }
-
-
-//    @Operation(summary = "Обновить статус заказа доставки")
-//    @PutMapping("/{id}")
-//    public ResponseEntity<Void> updateDeliveryOrderStatus(
-//            @RequestBody RequestOrderStatus requestDeliveryStatus,
-//            @PathVariable(name = "id") Long id) {
-//        log.info("[DeliveryController:updateDeliveryOrderStatus]: " +
-//                        "Попытка изменить статус доставки для заказа с id {} на статус {}"
-//                , id, requestDeliveryStatus.getStatus().toString());
-//        deliveryService.updateDeliveryOrderStatus(requestDeliveryStatus, id);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
 }

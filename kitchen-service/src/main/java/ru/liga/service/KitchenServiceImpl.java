@@ -47,9 +47,7 @@ public class KitchenServiceImpl implements KitchenService {
             requestOrderStatus.setStatus(newStatus);
             requestOrderStatus.setUuid(uuid);
             feignKitchen.updateOrderStatusByKitchen(requestOrderStatus);
-            //todo отправить сообщение клиенту о статусе
-            //            rabbitMQProducerService.sendOrderToDelivery(String
-//                    .valueOf(order.getId()));
+            //отправить сообщение клиенту о статусе
             log.info("[KitchenServiceImpl:updateOrderStatusByKitchenAccept]: " +
                     "Обновили статус заказа id {} на {}", uuid, newStatus.toString());
         } else {
@@ -70,9 +68,7 @@ public class KitchenServiceImpl implements KitchenService {
             requestOrderStatus.setStatus(newStatus);
             requestOrderStatus.setUuid(uuid);
             feignKitchen.updateOrderStatusByKitchen(requestOrderStatus);
-            //todo отправить сообщение клиенту о статусе
-            //            rabbitMQProducerService.sendOrderToDelivery(String
-//                    .valueOf(order.getId()));
+            // отправить сообщение клиенту о статусе
             log.info("[KitchenServiceImpl:updateOrderStatusByKitchenDecline]: " +
                     "Обновили статус заказа id {} на {}", uuid, newStatus.toString());
 
@@ -91,19 +87,13 @@ public class KitchenServiceImpl implements KitchenService {
         feignKitchen.updateOrderStatusByKitchen(requestOrderStatus);
         if (requestOrderStatus.getStatus()
                 .equals(OrderStatus.DELIVERY_PENDING)) {
-            //TODO отправить сообщение клиенту
-            //TODO отправить сообщение доставщику
-
+            //отправить сообщение клиенту и доставщику
             log.info("[KitchenServiceImpl:updateOrderStatusByKitchenReady]: " +
                     "Заказ {} ожидает доставки", uuid);
-
-//            rabbitMQProducerService.sendOrderToDelivery(String
-//                    .valueOf(order.getId()));
         }
         log.info("[KitchenServiceImpl:updateOrderStatusByKitchenReady]: " +
                 "Обновили статус заказа id {} на {}", uuid, newStatus.toString());
     }
-
 
     @Override
     public ResponseOrdersList getOrdersByStatusKitchen(String status) {
@@ -140,8 +130,8 @@ public class KitchenServiceImpl implements KitchenService {
         validator.checkRequestMenuItem(requestMenuItem);
         RestaurantMenuItem restaurantMenuItem = menuItemRepository.findById(id)
                 .orElseThrow(() -> new MenuItemNotFoundException(id));
-        restaurantMenuItem = mapRequestMenuItemToMenuItem(requestMenuItem
-                , restaurantMenuItem);
+        restaurantMenuItem = mapRequestMenuItemToMenuItem
+                (requestMenuItem , restaurantMenuItem);
         restaurantMenuItem = menuItemRepository.save(restaurantMenuItem);
         log.info("[KitchenServiceImpl:editMenuItem]: " +
                 "Изменили информацию о блюде с id {}", restaurantMenuItem.getId());
@@ -162,12 +152,8 @@ public class KitchenServiceImpl implements KitchenService {
 
     private ResponseOrdersList getOrdersByStatus(String requestOrderStatus) {
         OrderStatus status = validator.validAndReturnStatus(requestOrderStatus);
-//        var orders = ordersRepository.getOrdersByStatus(status);
 
         List<ResponseOrder> responseOrders = new ArrayList<>();
-//        for (Order order : orders) {
-//            responseOrders.add(mapOrderToResponseOrder(order));
-//        }
         ResponseOrdersList respOrdersList = new ResponseOrdersList();
         respOrdersList.setOrders(responseOrders);
         return respOrdersList;

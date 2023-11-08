@@ -39,7 +39,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<ResponseDeliveryOrderForFindCourier> responseOrderList =
                 feignDelivery.getOrdersByStatusDeliveryPending();
 
-        Courier courier = courierRepository.findById(id).orElseThrow(() -> new CourierNotFoundException(id));
+        Courier courier = courierRepository.findById(id).orElseThrow(() ->
+                new CourierNotFoundException(id));
         if (courier.getStatus().equals(CourierStatus.INACTIVE) ||
                 courier.getStatus().equals(CourierStatus.BUSY)) {
             throw new CourierIllegalWorkException(id);
@@ -48,7 +49,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         for (ResponseDeliveryOrderForFindCourier respOrder : responseOrderList) {
             ResponseDeliveryOrder respDeliveryOrder =
                     mapOrderToResponseOrder(respOrder, courier);
-            if (respDeliveryOrder.getSumDistance()<MAX_DISTANCE_FOR_COURIER){
+            if (respDeliveryOrder.getSumDistance() < MAX_DISTANCE_FOR_COURIER) {
                 responseDeliveryOrderList.add(respDeliveryOrder);
             }
         }
@@ -69,13 +70,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             requestOrderStatus.setStatus(newStatus);
             requestOrderStatus.setUuid(uuid);
             feignDelivery.updateOrderStatusByDelivery(requestOrderStatus);
-            //todo отправить сообщение клиенту о статусе
-            //            rabbitMQProducerService.sendOrderToDelivery(String
-//                    .valueOf(order.getId()));
+            // отправить сообщение клиенту о статусе
 
             log.info("[DeliveryServiceImpl:updateOrderStatusByDeliveryTake]: " +
                     "Обновили статус заказа id {} на {}", uuid, newStatus.toString());
-
         } else {
             throw new RequestOrderStatusInvalidException(orderStatus.toString());
         }
@@ -88,47 +86,20 @@ public class DeliveryServiceImpl implements DeliveryService {
         OrderStatus orderStatus = responseOrder.getOrderStatus();
         OrderStatus newStatus = null;
 
-
         if (orderStatus.equals(OrderStatus.DELIVERY_DELIVERING)) {
             newStatus = OrderStatus.DELIVERY_COMPLETE;
             RequestOrderStatus requestOrderStatus = new RequestOrderStatus();
             requestOrderStatus.setStatus(newStatus);
             requestOrderStatus.setUuid(uuid);
             feignDelivery.updateOrderStatusByDelivery(requestOrderStatus);
-            //todo отправить сообщение клиенту о статусе
-            //            rabbitMQProducerService.sendOrderToDelivery(String
-//                    .valueOf(order.getId()));
+            // отправить сообщение клиенту о статусе
 
             log.info("[DeliveryServiceImpl:updateOrderStatusByDeliveryComplete]: " +
                     "Обновили статус заказа id {} на {}", uuid, newStatus.toString());
-
         } else {
             throw new RequestOrderStatusInvalidException(orderStatus.toString());
         }
-
     }
-
-
-
-//    @Override
-//    public ResponseDeliveryOrder getOrderByIdDelivery(long id) {
-//        validator.isPositive(id);
-//        Order order = ordersRepository.findById(id)
-//                .orElseThrow(() -> new OrderNotFoundException(id));
-//        log.info("[DeliveryServiceImpl:getOrdersByStatus]: " +
-//                "Получили заказ на доставку с id {}", id);
-//        return mapOrderToResponseOrder(order);
-//    }
-
-//    @Override
-//    public void updateDeliveryOrderStatus(RequestOrderStatus requestDeliveryStatus
-//            , long id) {
-//        validator.isPositive(id);
-//        feignDelivery.updateOrderStatus(requestDeliveryStatus, id);
-//        log.info("[DeliveryServiceImpl:getOrdersByStatus]: " +
-//                        "Обновили статус заказа на доставку, новый статус {}"
-//                , requestDeliveryStatus.getStatus().toString());
-//    }
 
     private ResponseDeliveryOrder mapOrderToResponseOrder(ResponseDeliveryOrderForFindCourier order
             , Courier courier) {
@@ -145,12 +116,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         respCustomer.setAddress(customerAddress);
 
         double distanceCourierByRest = geoService
-                .determineDistanceCourToRest(courier.getCoordinates(), order.getAddressRestaurant());
+                .determineDistanceCourToRest(courier.getCoordinates()
+                        , order.getAddressRestaurant());
         respRestaurant.setDistance(new DecimalFormat("#0")
                 .format(distanceCourierByRest));
 
         double distanceRestByCustomer = geoService
-                .determineDistanceRestToCustom(order.getAddressRestaurant(), order.getAddressCustomer());
+                .determineDistanceRestToCustom(order.getAddressRestaurant()
+                        , order.getAddressCustomer());
         respCustomer.setDistance(new DecimalFormat("#0")
                 .format(distanceRestByCustomer));
 

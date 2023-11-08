@@ -24,18 +24,6 @@ import java.util.List;
 public class KitchenController {
     private final KitchenService kitchenService;
 
-    @Operation(summary = "Получить список заказов имеющие соответствующий статус")
-    @GetMapping("/orders")
-    public ResponseEntity<ResponseOrdersList> getKitchenOrdersByStatus(
-            @RequestParam(name = "status") String status) {
-        log.info("[KitchenController:getKitchenOrdersByStatus]: " +
-                "Попытка получить список заказов имеющие статус {}", status);
-        ResponseOrdersList kitchenOrderList = kitchenService
-                .getOrdersByStatusKitchen(status);
-        return new ResponseEntity<>(kitchenOrderList, HttpStatus.OK);
-    }
-
-
     @Operation(summary = "Обновить статус заказа (принять/accept)")
     @PutMapping("/{uuid}/accept")
     public ResponseEntity<Void> updateOrderStatusByKitchenAccept(
@@ -69,22 +57,16 @@ public class KitchenController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-//    @Operation(summary = "Обновить статус заказа")
-//    @PutMapping("/{uuid}/")
-//    public ResponseEntity<Void> updateOrderStatusByKitchen(
-//            @RequestBody RequestOrderStatus requestOrderStatus,
-//            @PathVariable(name = "uuid") String id) {
-//        log.info("[KitchenController:updateOrderStatusByKitchen]: " +
-//                        "Попытка обновить статус заказа id {} на новый  статус {}"
-//                , id, requestOrderStatus.getStatus().toString());
-//        kitchenService.updateOrderStatusByKitchen(requestOrderStatus, id);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
-
-
-
-
-
+    @Operation(summary = "Получить список заказов имеющие соответствующий статус")
+    @GetMapping("/orders")
+    public ResponseEntity<ResponseOrdersList> getKitchenOrdersByStatus(
+            @RequestParam(name = "status") String status) {
+        log.info("[KitchenController:getKitchenOrdersByStatus]: " +
+                "Попытка получить список заказов имеющие статус {}", status);
+        ResponseOrdersList kitchenOrderList = kitchenService
+                .getOrdersByStatusKitchen(status);
+        return new ResponseEntity<>(kitchenOrderList, HttpStatus.OK);
+    }
 
     @Operation(summary = "Получить информация о блюде по ID")
     @GetMapping("/item/{id}")
@@ -120,8 +102,6 @@ public class KitchenController {
                 .editMenuItem(requestMenuItem, id);
         return new ResponseEntity<>(respMenuItem, HttpStatus.OK);
     }
-
-
 
     @Operation(summary = "Изменить цену блюда в меню")
     @PutMapping("/item/{id}")
