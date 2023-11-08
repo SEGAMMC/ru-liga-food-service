@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.junit.Test;
-//import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import ru.liga.dto.request.RequestOrder;
 import ru.liga.dto.request.RequestOrderItem;
@@ -17,7 +16,6 @@ public class OrderTest {
     private final OrderService orderService;
 
     @Transactional
-//    @Rollback
     @Test
     public void methodCreateNewOrder_Accept_OK() {
     
@@ -42,12 +40,15 @@ public class OrderTest {
 		ResponseOrderAccept respOrderAccept2 = orderService
 				.createNewOrder(requestOrder);
 				
-		//Проверяем что Id и SecretPaymentUrl заказов отличаются
+		//Проверяем что Id, UUID и SecretPaymentUrl заказов отличаются
 		assertThat(respOrderAccept1.getSecretPaymentUrl())
 			.isNotEqualTo(respOrderAccept2.getSecretPaymentUrl());
 			
         assertThat(respOrderAccept1.getId())
 			.isNotEqualTo(respOrderAccept2.getId());
+
+		assertThat(respOrderAccept1.getUuid())
+				.isNotEqualTo(respOrderAccept2.getUuid());
 
 	}
 }

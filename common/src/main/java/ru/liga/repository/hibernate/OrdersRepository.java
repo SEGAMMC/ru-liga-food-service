@@ -1,7 +1,6 @@
 package ru.liga.repository.hibernate;
 
 import org.springframework.data.repository.CrudRepository;
-import ru.liga.dto.request.RequestOrderStatus;
 import ru.liga.entity.Customer;
 import ru.liga.entity.Order;
 import ru.liga.enums.OrderStatus;
@@ -15,6 +14,6 @@ public interface OrdersRepository
 
     Iterable<Order> findByCustomerId(Customer customerId);
 
-    Order findOrderByUUID (String uuid);
+    Order findOrderByUuid(String uuid);
 
 }

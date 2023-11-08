@@ -1,7 +1,6 @@
 package ru.liga.util;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.liga.dto.request.*;
 import ru.liga.enums.OrderStatus;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-@Slf4j
 @Component
 public class Validator {
     private final OrdersRepository orderRepository;

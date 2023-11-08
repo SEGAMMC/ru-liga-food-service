@@ -17,6 +17,4 @@ public class JacksonConfiguration {
                 .addModule(new JavaTimeModule())
                 .build();
     }
-
-
 }

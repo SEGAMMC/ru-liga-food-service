@@ -12,20 +12,30 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RoutingMQConfig {
 
-
     @Bean
     public Declarables myQueue() {
         Queue queueDirectCouriers = new Queue("queueOrdersToKitchen", false);
-        DirectExchange directExchange = new DirectExchange("pushOrdersDirectExchange");
+        DirectExchange directExchange = new DirectExchange("notificationToKitchenDirectExchange");
+
 
         return new Declarables(queueDirectCouriers, directExchange,
-                BindingBuilder.bind(queueDirectCouriers).to(directExchange).with("order.new")
-        );
+                BindingBuilder.bind(queueDirectCouriers).to(directExchange)
+                        .with("order.new"));
+    }
+
+    @Bean
+    public Declarables myQueue2() {
+        Queue queueDirectCouriers = new Queue("pushToCustomer", false);
+        DirectExchange directExchange = new DirectExchange("notificationToCustomerDirectExchange");
+
+
+        return new Declarables(queueDirectCouriers, directExchange,
+                BindingBuilder.bind(queueDirectCouriers).to(directExchange)
+                        .with("customer"));
     }
 
     @Bean
     public ObjectMapper createObjectMapper() {
         return new ObjectMapper();
     }
-
 }

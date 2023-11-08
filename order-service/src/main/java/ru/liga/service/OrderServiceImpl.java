@@ -30,8 +30,8 @@ public class OrderServiceImpl implements OrderService {
     private static final String URL_PREFIX = "http:/liga.ru/pay-";
     private static final long DEFAUL_TIME_DELIVERY = 90; //minut
     private static final double MONEY_KOEFFICIENT = 100d;// в БД price в копейках
-    private final Validator validator;
 
+    private final Validator validator;
     private final OrdersRepository ordersRepository;
     private final OrderItemRepository orderItemRepository;
     private final CustomerRepository customerRepository;
@@ -50,30 +50,34 @@ public class OrderServiceImpl implements OrderService {
         Restaurant restaurant = restaurantRepository.findById(requestOrder.getRestaurantId())
                 .orElseThrow(() -> new RestaurantNotFoundException(requestOrder.getRestaurantId()));
 
-        order.setCustomerId(customer);
-        order.setRestaurantId(restaurant);
-        order.setStatus(OrderStatus.CUSTOMER_CREATED);
-        order.setTimeStamp(LocalDateTime.now());
+        order.builder()
+                .customerId(customer)
+                .restaurantId(restaurant)
+                .status(OrderStatus.CUSTOMER_CREATED)
+                .timeStamp(LocalDateTime.now())
+                .build();
         order = ordersRepository.save(order);
 
         List<RequestOrderItem> requestOrderItemList = requestOrder.getOrderItems();
         for (RequestOrderItem requestOrderItem : requestOrderItemList) {
             OrderItem orderItem = new OrderItem();
+
             RestaurantMenuItem restaurantMenuItem = restaurantMenuItemRepository
                     .findById(requestOrderItem.getMenuItemId())
                     .orElseThrow(() -> new MenuItemNotFoundException(
                             requestOrderItem.getMenuItemId()));
 
-            orderItem.setQuantity(requestOrderItem.getQuantity());
-            orderItem.setRestaurantMenuItem(restaurantMenuItem);
-            orderItem.setPrice(restaurantMenuItem.getPrice() * requestOrderItem.getQuantity());
-            orderItem.setOrderId(order);
+            orderItem.builder()
+                    .quantity(requestOrderItem.getQuantity())
+                    .restaurantMenuItem(restaurantMenuItem)
+                    .price(restaurantMenuItem.getPrice() * requestOrderItem.getQuantity())
+                    .orderId(order);
             orderItemRepository.save(orderItem);
             orderItemsList.add(orderItem);
         }
 
         String newUUID = UUID.randomUUID().toString();
-        order.setUUID(newUUID);
+        order.setUuid(newUUID);
         order.setItems(orderItemsList);
         order = ordersRepository.save(order);
 
@@ -84,56 +88,73 @@ public class OrderServiceImpl implements OrderService {
         responseOrderAccept.setEstimatedTimeOfArrival(timeDelivery);
         responseOrderAccept.setId(order.getId());
         log.info("[OrderServiceImpl:createNewOrder]:" +
-                " Создали новый заказ с id {}", order.getId());
-        //todo отправить оповещение клиенту принят
+                " Создали новый заказ с id {}", order.getUuid());
+
+        rabbitMQProducerService.pushNotificationCustomerByUpdateStatus(
+                "Вы создали заказ, ожидается оплата"
+                , "customer" + order.getCustomerId().getId());
         return responseOrderAccept;
     }
 
+
     @Override
     public void payOrder(RequestPay requestPay) {
-        Order order = ordersRepository.findOrderByUUID(requestPay.getUuid());
+        Order order = ordersRepository.findOrderByUuid(requestPay.getUuid());
         if (order == null) {
             throw new OrderNotFoundException(requestPay.getCustomerId());
         }
         if (order.getStatus().equals(OrderStatus.CUSTOMER_PAID)) {
             log.info("[OrderServiceImpl:payOrder]:" +
-                    " Попытка оплатить уже оплаченный заказ {}", order.getUUID());
+                    " Попытка оплатить уже оплаченный заказ {}", order.getUuid());
             throw new RequestInvalidPayException(requestPay, "repeat");
         }
 
         if (order.getStatus().equals(OrderStatus.CUSTOMER_CREATED)) {
             order.setStatus(OrderStatus.CUSTOMER_PAID);
             ordersRepository.save(order);
-            sendOrderToQueue(order); //отправка заказа в очередь OrdersQueue
+
             log.info("[OrderServiceImpl:payOrder]:" +
-                    " Оплатили заказ {}", order.getUUID());
-            //todo отправить оповещение клиенту что оплачен
-            //todo отправить оповещение на заказ на кухню
+                    " Оплатили заказ {}", order.getUuid());
+            rabbitMQProducerService.pushNotificationCustomerByUpdateStatus(
+                    "Заказ оплачен, ожидайте доставку"
+                    , "customer" + order.getCustomerId().getId());
+            rabbitMQProducerService.pushNotificationKitchenByNewOrder(order.getUuid()
+                    , "restaurant" + order.getRestaurantId().getId() + ".newOrder");
+
         } else throw new RequestInvalidPayException(requestPay);
     }
 
 
     @Override
     public void cancelOrderById(String UUID) {
-        Order order = ordersRepository.findOrderByUUID(UUID);
+        Order order = ordersRepository.findOrderByUuid(UUID);
         if (order == null) {
             throw new OrderNotFoundException(UUID);
         }
 
         if (order.getStatus().equals(OrderStatus.CUSTOMER_PAID)) {
             log.info("[OrderServiceImpl:payOrder]:" +
-                    " Закрываем/отменяем уже оплаченный заказ {}", order.getUUID());
-            //todo отправить оповещение клиенту об отмене
-            //todo отправить оповещение на кухню об отмене
+                    " Закрываем/отменяем уже оплаченный заказ {}", order.getUuid());
+
+            rabbitMQProducerService.pushNotificationCustomerByUpdateStatus(
+                    "Заказ отменили, ожидайте возврата средств"
+                    , "customer" + order.getCustomerId().getId());
+            rabbitMQProducerService.pushNotificationKitchenByCancelOrder(order.getUuid()
+                    , "restaurant" + order.getRestaurantId().getId() + ".cancelOrder");
 
             order.setStatus(OrderStatus.CUSTOMER_CANCELLED);
             ordersRepository.save(order);
-            refundMoneyById(UUID);
+            refundMoneyById(UUID); //возвращаем денедные средства
         } else if (order.getStatus().equals(OrderStatus.CUSTOMER_CREATED)) {
             log.info("[OrderServiceImpl:payOrder]:" +
-                    " Закрываем/отменяем заказ {}", order.getUUID());
-            //todo отправить оповещение клиенту об отмене
-            //todo отправить оповещение на кухню об отмене
+                    " Закрываем/отменяем заказ {}", order.getUuid());
+
+            rabbitMQProducerService.pushNotificationCustomerByUpdateStatus(
+                    "Заказ отменили"
+                    , "customer" + order.getCustomerId().getId());
+            rabbitMQProducerService.pushNotificationKitchenByCancelOrder(order.getUuid()
+                    , "restaurant" + order.getRestaurantId().getId() + ".cancelOrder");
+
             order.setStatus(OrderStatus.CUSTOMER_CANCELLED);
             ordersRepository.save(order);
         } else throw new RequestInvalidPayException(UUID);
@@ -142,7 +163,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateOrderStatusByDelivery(RequestOrderStatus requestOrderStatus) {
         validator.isValidRequestStatus(requestOrderStatus);
-        Order order = ordersRepository.findOrderByUUID(requestOrderStatus.getUuid());
+        Order order = ordersRepository.findOrderByUuid(requestOrderStatus.getUuid());
         if (order == null) {
             throw new OrderNotFoundException(requestOrderStatus.getUuid());
         }
@@ -155,11 +176,12 @@ public class OrderServiceImpl implements OrderService {
             order = ordersRepository.save(order);
         }
 
-
         log.info("[OrderServiceImpl:updateOrderStatusByDelivery]:" +
-                " Изменили статус заказа с id {}, новый статус {}", order.getUUID(), order.getStatus());
+                " Изменили статус заказа с id {}, новый статус {}", order.getUuid(), order.getStatus());
 
-        //TODO  сообщить клиенту o статусе
+        rabbitMQProducerService.pushNotificationCustomerByUpdateStatus(
+                "Статус заказа изменился"
+                , "customer" + order.getCustomerId().getId());
 
     }
 
@@ -203,7 +225,7 @@ public class OrderServiceImpl implements OrderService {
 
         ResponseOrder respOrder = new ResponseOrder();
         respOrder.setId(orderById.getId());
-        respOrder.setUuid(orderById.getUUID());
+        respOrder.setUuid(orderById.getUuid());
         respOrder.setRestaurant(respRestaurantName);
         respOrder.setTimestamp(orderById.getTimeStamp());
         respOrder.setItems(mapOrderItemToResponseOrderItem(orderById.getItems()));
@@ -214,7 +236,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseOrder getOrderByUuid(String uuid) {
-        Order orderById = ordersRepository.findOrderByUUID(uuid);
+        Order orderById = ordersRepository.findOrderByUuid(uuid);
         if (orderById == null) {
             throw new OrderNotFoundException(uuid);
         }
@@ -223,12 +245,12 @@ public class OrderServiceImpl implements OrderService {
 
         ResponseOrder respOrder = new ResponseOrder();
         respOrder.setId(orderById.getId());
-        respOrder.setUuid(orderById.getUUID());
+        respOrder.setUuid(orderById.getUuid());
         respOrder.setRestaurant(respRestaurantName);
         respOrder.setTimestamp(orderById.getTimeStamp());
         respOrder.setItems(mapOrderItemToResponseOrderItem(orderById.getItems()));
         log.info("[OrderServiceImpl:getOrderByUuid]:" +
-                " Получили информацию о заказе с id {}", orderById.getUUID());
+                " Получили информацию о заказе с id {}", orderById.getUuid());
         return respOrder;
     }
 
@@ -236,45 +258,43 @@ public class OrderServiceImpl implements OrderService {
         log.info("[OrderServiceImpl:refundMoneyById]:" +
                 " Оформляяем возврат денежных средств по заказу id {}", UUID);
 
-        //todo отправить оповещение клиенту
+        rabbitMQProducerService.pushNotificationCustomerByUpdateStatus(
+                "Денежные средства вернули"
+                , "customer");
     }
 
 
     @Override
     public ResponseOrderStatusByKitchen getOrderByUuidByKitchen(String uuid) {
-        Order orderById = ordersRepository.findOrderByUUID(uuid);
+        Order orderById = ordersRepository.findOrderByUuid(uuid);
         if (orderById == null) {
             throw new OrderNotFoundException(uuid);
         }
-
         ResponseOrderStatusByKitchen respOrder = new ResponseOrderStatusByKitchen();
         respOrder.setOrderStatus(orderById.getStatus());
-
         log.info("[OrderServiceImpl:getOrderByUuidByKitchen]:" +
-                " Получили информацию о заказе с id {}", orderById.getUUID());
+                " Получили информацию о заказе с id {}", orderById.getUuid());
         return respOrder;
     }
 
     @Override
     public ResponseOrderStatusByDelivery getOrderByUuidByDelivery(String uuid) {
-        Order orderById = ordersRepository.findOrderByUUID(uuid);
+        Order orderById = ordersRepository.findOrderByUuid(uuid);
         if (orderById == null) {
             throw new OrderNotFoundException(uuid);
         }
-
         ResponseOrderStatusByDelivery respOrder = new ResponseOrderStatusByDelivery();
         respOrder.setOrderStatus(orderById.getStatus());
 
         log.info("[OrderServiceImpl:getOrderByUuidByDelivery]:" +
-                " Получили информацию о заказе с id {}", orderById.getUUID());
+                " Получили информацию о заказе с id {}", orderById.getUuid());
         return respOrder;
     }
-
 
     @Override
     public void updateOrderStatusByKitchen(RequestOrderStatus requestOrderStatus) {
         validator.isValidRequestStatus(requestOrderStatus);
-        Order order = ordersRepository.findOrderByUUID(requestOrderStatus.getUuid());
+        Order order = ordersRepository.findOrderByUuid(requestOrderStatus.getUuid());
         if (order == null) {
             throw new OrderNotFoundException(requestOrderStatus.getUuid());
         }
@@ -282,33 +302,36 @@ public class OrderServiceImpl implements OrderService {
         order = ordersRepository.save(order);
 
         if (order.getStatus().equals(OrderStatus.KITCHEN_DENIED)) {
-            refundMoneyById(order.getUUID());
+            refundMoneyById(order.getUuid());
         }
         log.info("[OrderServiceImpl:updateOrderStatusByKitchen]:" +
-                " Изменили статус заказа с id {}, новый статус {}", order.getUUID(), order.getStatus());
-        //TODO  сообщить клиенту o статусе
+                " Изменили статус заказа с id {}, новый статус {}"
+                , order.getUuid(), order.getStatus());
+
+        rabbitMQProducerService.pushNotificationCustomerByUpdateStatus(
+                "Статус заказа изменился"
+                , "customer" + order.getCustomerId().getId());
     }
-
-//////////////////////////////////////////////////////////////////////////////////
-
 
     @Override
     public void updateOrderStatus(RequestOrderStatus requestOrderStatus) {
         validator.isValidRequestStatus(requestOrderStatus);
 
-        Order order = ordersRepository.findOrderByUUID(requestOrderStatus.getUuid());
+        Order order = ordersRepository.findOrderByUuid(requestOrderStatus.getUuid());
         if (order == null) {
             throw new OrderNotFoundException(requestOrderStatus.getUuid());
         }
-
-
         order.setStatus(requestOrderStatus.getStatus());
         order = ordersRepository.save(order);
         log.info("[OrderServiceImpl:updateOrderStatus]:" +
-                        " Изменили статус заказа с id {}, новый статус {}", order.getUUID()
+                        " Изменили статус заказа с id {}, новый статус {}"
+                , order.getUuid()
                 , order.getStatus().toString());
-    }
 
+        rabbitMQProducerService.pushNotificationCustomerByUpdateStatus(
+                "Статус заказа изменился"
+                , "customer" + order.getCustomerId().getId());
+    }
 
     @Override
     public ResponseOrdersList getOrdersByStatusCustomer(String status) {
@@ -323,19 +346,19 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<ResponseDeliveryOrderForFindCourier> getOrdersByStatusDelivery() {
         List<ResponseDeliveryOrderForFindCourier> responseOrderList = new ArrayList<>();
-        var orders = ordersRepository.getOrdersByStatus(OrderStatus.DELIVERY_PENDING);
+        var orders = ordersRepository
+                .getOrdersByStatus(OrderStatus.DELIVERY_PENDING);
 
         for (Order order : orders) {
             ResponseDeliveryOrderForFindCourier respDeliveryOrder =
                     new ResponseDeliveryOrderForFindCourier();
-            respDeliveryOrder.setUuid(order.getUUID());
+            respDeliveryOrder.setUuid(order.getUuid());
             respDeliveryOrder.setAddressRestaurant(order.getRestaurantId().getAddress());
             respDeliveryOrder.setAddressCustomer(order.getCustomerId().getAddress());
             responseOrderList.add(respDeliveryOrder);
         }
         return responseOrderList;
     }
-
 
     private ResponseOrdersList getOrdersByStatus(String requestOrderStatus) {
         OrderStatus status = validator.validAndReturnStatus(requestOrderStatus);
@@ -373,19 +396,6 @@ public class OrderServiceImpl implements OrderService {
             respOrderItems.add(responseOrderItem);
         }
         return respOrderItems;
-    }
-
-    private void sendOrderToQueue(Order order) {
-        OrderModel orderModel = new OrderModel();
-        orderModel.setId(order.getId());
-        orderModel.setRestaurantId(order.getRestaurantId().getId());
-        String newOrderToQueue = null;
-        try {
-            newOrderToQueue = objectMapper.writeValueAsString(orderModel);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        rabbitMQProducerService.sendOrderToQueue(newOrderToQueue, "order.new");
     }
 
 }
